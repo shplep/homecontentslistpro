@@ -20,4 +20,8 @@
 
 10. **Collaboration**: Use GitHub issues and pull requests for tracking progress and facilitating collaboration among team members.
 
-11. **Git Usage**: Use command-line git to push commits to the GitHub repository, ensuring all changes are tracked and documented. 
+11. **Git Usage**: Use command-line git to push commits to the GitHub repository, ensuring all changes are tracked and documented.
+
+12. **Responsive Design**: Ensure all UI components are responsive and adapt to different screen sizes, providing a seamless experience on mobile, tablet, and desktop devices.
+
+13. **User Feedback**: Implement user feedback mechanisms, such as a feedback form or survey, to gather insights and improve the user experience continuously. 
