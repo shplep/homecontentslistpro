@@ -24,4 +24,13 @@
 
 12. **Responsive Design**: Ensure all UI components are responsive and adapt to different screen sizes, providing a seamless experience on mobile, tablet, and desktop devices.
 
-13. **User Feedback**: Implement user feedback mechanisms, such as a feedback form or survey, to gather insights and improve the user experience continuously. 
+13. **User Feedback**: Implement user feedback mechanisms, such as a feedback form or survey, to gather insights and improve the user experience continuously.
+
+### CODING PROTOCOL ###
+
+- Write the absolute minimum code required.
+- No sweeping changes.
+- No unrelated edits - focus on just the task you're on.
+- Make code precise, modular, and testable.
+- Don't break existing functionality.
+- If I need to do anything, tell me clearly. 
