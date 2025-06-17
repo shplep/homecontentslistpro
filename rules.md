@@ -18,4 +18,6 @@
 
 9. **Deployment**: Deploy updates to the production environment only after thorough testing and code review.
 
-10. **Collaboration**: Use GitHub issues and pull requests for tracking progress and facilitating collaboration among team members. 
+10. **Collaboration**: Use GitHub issues and pull requests for tracking progress and facilitating collaboration among team members.
+
+11. **Git Usage**: Use command-line git to push commits to the GitHub repository, ensuring all changes are tracked and documented. 
