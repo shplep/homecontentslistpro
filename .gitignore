@@ -59,3 +59,5 @@ Thumbs.db
 # SQLite database files
 *.db
 *.db-journal
+node_modules/
+/.next/
