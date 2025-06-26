@@ -1,0 +1,272 @@
+// HomeContentsListPro Database Schema
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// User management
+model User {
+  id                     Int      @id @default(autoincrement())
+  name                   String?
+  email                  String   @unique
+  password               String
+  phone                  String?
+  address                String?
+  role                   Role     @default(USER)
+  passwordResetToken     String?  @map("password_reset_token")
+  passwordResetExpiresAt DateTime? @map("password_reset_expires_at")
+  createdAt              DateTime @default(now()) @map("created_at")
+  updatedAt              DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  houses        House[]
+  collaborations Collaborator[]
+  notifications Notification[]
+  subscriptions Subscription[]
+  adminLogs     AdminLog[]     @relation("AdminActions")
+  userLogs      AdminLog[]     @relation("UserActions")
+
+  @@map("users")
+}
+
+// House management
+model House {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @map("user_id")
+  name      String?  // Optional house name for multiple properties
+  address1  String   @map("address_1")
+  address2  String?  @map("address_2")
+  city      String
+  state     String
+  zipCode   String   @map("zip_code")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  rooms         Room[]
+  collaborators Collaborator[]
+  insuranceInfo InsuranceInfo?
+
+  @@map("houses")
+}
+
+// Insurance information for each house
+model InsuranceInfo {
+  id             Int     @id @default(autoincrement())
+  houseId        Int     @unique @map("house_id")
+  company        String
+  address1       String  @map("address_1")
+  address2       String? @map("address_2")
+  city           String
+  state          String
+  zipCode        String  @map("zip_code")
+  agentName      String? @map("agent_name")
+  phoneNumber    String? @map("phone_number")
+  policyNumber   String? @map("policy_number")
+  maxCoverage    Decimal? @map("max_coverage")
+  notes          String?
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  house House @relation(fields: [houseId], references: [id], onDelete: Cascade)
+
+  @@map("insurance_info")
+}
+
+// Room management
+model Room {
+  id        Int      @id @default(autoincrement())
+  houseId   Int      @map("house_id")
+  name      String
+  notes     String?
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  house House @relation(fields: [houseId], references: [id], onDelete: Cascade)
+  items Item[]
+
+  @@map("rooms")
+}
+
+// Item management
+model Item {
+  id            Int           @id @default(autoincrement())
+  roomId        Int           @map("room_id")
+  name          String
+  serialNumber  String?       @map("serial_number")
+  category      String?
+  brand         String?
+  model         String?
+  price         Decimal?
+  dateAcquired  DateTime?     @map("date_acquired")
+  status        ItemStatus?
+  condition     ItemCondition?
+  notes         String?
+  isImported    Boolean       @default(false) @map("is_imported")
+  createdAt     DateTime      @default(now()) @map("created_at")
+  updatedAt     DateTime      @updatedAt @map("updated_at")
+
+  // Relations
+  room   Room    @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  images Image[]
+
+  @@map("items")
+}
+
+// Image storage
+model Image {
+  id        Int      @id @default(autoincrement())
+  itemId    Int      @map("item_id")
+  filename  String
+  path      String
+  size      Int
+  mimeType  String   @map("mime_type")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  // Relations
+  item Item @relation(fields: [itemId], references: [id], onDelete: Cascade)
+
+  @@map("images")
+}
+
+// Collaborator access
+model Collaborator {
+  id                Int                    @id @default(autoincrement())
+  userId            Int                    @map("user_id")
+  houseId           Int                    @map("house_id")
+  collaboratorEmail String                 @map("collaborator_email")
+  permissions       CollaboratorPermission
+  invitedAt         DateTime               @default(now()) @map("invited_at")
+  acceptedAt        DateTime?              @map("accepted_at")
+
+  // Relations
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  house House @relation(fields: [houseId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, houseId, collaboratorEmail])
+  @@map("collaborators")
+}
+
+// Insurance report formats
+model InsuranceFormat {
+  id             Int    @id @default(autoincrement())
+  insurerName    String @map("insurer_name")
+  columnMappings Json   @map("column_mappings")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  @@map("insurance_formats")
+}
+
+// Notifications
+model Notification {
+  id        Int              @id @default(autoincrement())
+  userId    Int              @map("user_id")
+  message   String
+  type      NotificationType
+  sentAt    DateTime         @default(now()) @map("sent_at")
+  readAt    DateTime?        @map("read_at")
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("notifications")
+}
+
+// Admin action logging
+model AdminLog {
+  id        Int      @id @default(autoincrement())
+  adminId   Int      @map("admin_id")
+  userId    Int      @map("user_id")
+  action    String
+  timestamp DateTime @default(now())
+
+  // Relations
+  admin User @relation("AdminActions", fields: [adminId], references: [id])
+  user  User @relation("UserActions", fields: [userId], references: [id])
+
+  @@map("admin_logs")
+}
+
+// Discount codes for affiliate program
+model DiscountCode {
+  id           Int      @id @default(autoincrement())
+  code         String   @unique
+  promoterName String   @map("promoter_name")
+  promoFee     Decimal  @map("promo_fee")
+  isActive     Boolean  @default(true) @map("is_active")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  // Relations
+  subscriptions Subscription[]
+
+  @@map("discount_codes")
+}
+
+// Subscription management
+model Subscription {
+  id                   Int             @id @default(autoincrement())
+  userId               Int             @map("user_id")
+  stripeSubscriptionId String?         @unique @map("stripe_subscription_id")
+  discountCodeId       Int?            @map("discount_code_id")
+  planId               Int             @map("plan_id")
+  status               SubscriptionStatus
+  trialEndsAt          DateTime?       @map("trial_ends_at")
+  currentPeriodStart   DateTime?       @map("current_period_start")
+  currentPeriodEnd     DateTime?       @map("current_period_end")
+  createdAt            DateTime        @default(now()) @map("created_at")
+  updatedAt            DateTime        @updatedAt @map("updated_at")
+
+  // Relations
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  discountCode DiscountCode? @relation(fields: [discountCodeId], references: [id])
+
+  @@map("subscriptions")
+}
+
+// Enums
+enum Role {
+  USER
+  ADMIN
+}
+
+enum ItemStatus {
+  NEW
+  USED
+  ANTIQUE
+  HEIRLOOM
+}
+
+enum ItemCondition {
+  BELOW_AVERAGE
+  AVERAGE
+  ABOVE_AVERAGE
+  NEW
+}
+
+enum CollaboratorPermission {
+  VIEW
+  EDIT
+}
+
+enum NotificationType {
+  EMAIL
+  DASHBOARD
+}
+
+enum SubscriptionStatus {
+  TRIAL
+  ACTIVE
+  PAST_DUE
+  CANCELED
+  INCOMPLETE
+}

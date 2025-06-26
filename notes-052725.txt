@@ -1,0 +1,151 @@
+Create a very basic webapp. 
+
+Evaluate my notes. Then give me the full architecture:
+- File + folder structure
+- What each part does
+- Where state lives, how services connect
+Format this entire document in markdown.”
+
+Here are the details, in no particular order:
+
+App purpose: To allow a user to record their home contents for insurance documentation purposes. This can be done preventatively before a disaster, or after a disaster to re-create a listing of what the home included. The app will output a file (such as a spreadsheet or PDF) according to the format required by the insurance company. The user is able to define the rooms in their house and add the items that were in each room in an easy way.
+
+Current Landing Page URL: https://homecontentslistpro.com/
+
+- Use Next.js for the frontend.
+- Use an external MySQL database for the backend data.
+- Make the UI typical fo a modern webapp.
+- CSS (Using Material Design principles)
+
+
+The app is a home inventory-recording app named HomeContentsListPro. The intention of the app is to allow the user to fully document the contents of their home, room-by-room. The purpose of this is primarily to store the data in a format that can be printed out or saved as a file in a format that insurance companies can read and that meets their requirements for insurance claim submissions.
+
+The output data, if the user chooses to export their home contents, should be either PDF or CSV/Excel. All columns should be output.
+
+For each customer's home, Limit the # of lines to 3000 - meaning a maximum of 3000 items can be documented (across a maximum of 30 rooms). 
+
+The user should also be able to do import items from a Spreadsheet. The app should provide a sample import sheet the user can use, which has the proper column names defined.
+
+- App should have a normal expected user registration, login, and password recovery functions. Password recovery will be done via an emailed link.
+- There should be an admin area in which the admin can view all user accounts, subscription status, last login, item count, room count.
+- The app asks the user to set up a profile which include their name, address, phone number, and email.
+- The user also will add their insurance company name, address, agent name, and their policy number.
+- The app allows a user to add their house (records the address) and the rooms (kitchen, dining room, living room, downstairs bathroom, patio, garage, etc).
+- A room just requires a name, but can have a short note added to it optionally
+- Once a room has been added, the app allows the user to add items to the room (bed, dresser, slippers, curtains, etc)
+- An item requires a name but can also have a serial number, a room, a category (Appliances, Art, Books, Furniture, Electronics, Collectibles, Tools, Toys, Musical INstruments, etc.), a brand, a model number,  a price, a date acquired, a status (new, used, antique, heirloom), a general condition (below average, average, above average, new), notes, and images (either of a receipt or of the item itself).
+- The app should have a setup wizard that walks the user through the initial setup including the room selection. This should list all the "common" room names and allow the user to pick the ones they have in their house. These would be: Attic, basement, bathroom, bedroom, closet, deck, dining room, garage, hallway, kitchen, laundry room, living room, master bedroom, office, patio.
+- Each of the pre-defined rooms could have a numeric selector, since some rooms have more than one possible presence in the house (like bathrooms)
+- The room addition screen should also allow the user to define a new room not shown in the list. 
+- There should be reports the user can view such as: Total Inventory Value (The total value of all items in inventory), Category Value Report (showing value by category), Room-By-Room Value (breaks down value by room)
+- There should be a special Insurance Report which is a detailed report showing all the items with their values, organized by room, formatted according to the user's insurance company specs.
+- The user can view their subscription info from within their settings
+- The user can export any of their reports as excel/csv/pdf
+- The user Settings should include House Information, Insurance details, Subscription Management
+- There should be a way to view All Items and the user can filter by room, category, price, name
+- The admin can define a output formats for insurance reports for different insurers. (For instance, State Farm may have different names for the fields they expect than Farmers Insurance.) The admin is able to define the columns names that should be exported, what those map to (from the app's data) and the order of the columns and save that definition for that particular insurance provider.
+- If an insurance company doesn't have a specific format defined, the user can do a generic export of their data and the column names will be just as they are shown in the app. (It will be a generic, default format.)
+- The database should mark each item as imported or manually entered. This can be viewable by an admin as item metadata, and could be useful for debugging.
+- A user can import a spreadsheet of items. The importer allows the user to map the fields and it will import the data. If an item's room does not exist (and it is named in the import) the room will be created. 
+- The admin can view a user's account just as the user would see it. There should be a mode that allows the admin to choose a user and browse their account as if they were the user. But it would have a bar on top of the screen showing ADMIN MODE.
+- The user can "wipe" all their data if they desire from within their account settings. (It should be in red and very obvious that they are about to really erase everything if they want to do that.)
+- Each item should be viewable on its own detail page, and should also be editable, and should also have the option to delete. This can be shown on the "All Items" view by displaying icons for these purposes (edit, delete, view).
+- Each room can be edited (the name and description).
+- A room can be deleted only if its empty of items.
+- There should be a house overview page that shows all the room names on cards or in a grid or in a list view, and the room should show the item count of items in that room.
+
+
+OTHER SPECS:
+- User passwords should be encrypted. I would prefer the use of a proven user login system to cover this.
+- We need a privacy policy that includes a data retention policy stating that the user can delete all their information if they desire
+- The site needs a common footer and header for easy editing and includes
+- The site must be reponsive and be viewable on all device sizes, with a mobile menu on small screens
+- I am the only admin of the site
+- I want a help section and a support/contact section that will send me an email
+- Images should be limited to only widely-accepted image types (JPG, PNG) and no more than 1500px wide and no more than 6mb per image
+- Either Cloudflare images or Amazon web services can be used for image storage on production. (For initial dev and for testing simply upload to a file uploads folder.)
+- The list all view for items should allow the user to select them and then perform bulk actions: edit or delete. If they choose to edit and have checked multiple itmes, it will bring them to a bulk edit screen where they can edit all the fields like a spreadsheet.
+- I am hosting on a scalable cloud VPS
+- Backups are made daily of the site
+- If a spreadsheet is imported but improperly formatted, the app will attempt to tell the user what is wrong. A sample import sheet will be available to get the user started.
+- I would like this app to be fast, so any caching the site can do will be good.
+- If a user has multiple houses on a 2+ property plan, they can edit and add items per-property and the interface will indicate it.
+- A user can grant access to someone else as a collaborator. A collaborator account doesn't see the billing, profile, etc info but is allowed access to the specified house(s) the user grants access to. The user can also specify if the collaborator can view, edit, add, or delete items or rooms and items.
+
+SUBSCRIPTION PRICING:
+- We offer a one-year plan for $249 for a one-house 
+- We offer a one-year plan for $435 for 2 properties
+- We offer a one-year plan for $674 for up to 4 properties
+- We will offer a different product on a totally separate domain for 5+ properties
+- The user has a 10-day trial to try out the app, but it is limited. It will only allow the user to add items to 5 rooms, and each room is limited to 10 items. If the user has added other rooms, they will not allow the user to add items to them.
+- A paid user's account allows a maximum of 3,000 items
+- The terms of use specify they can only use this for one property
+- I will use Stripe for subscription and payment services
+- I want to allow the use of a discount code. I will utilize this for an affiliate program. If I assign a specific code to someone, they can promote it. If people sign up using that code, the customer gets a 10% discount and the promoter receives a promo fee that I will agree upon with the individual. I will need a way to run a report each month showing me which discount code(s) were used, and who the code was assigned to, and then I will make payouts to my affiliates.
+
+
+OTHER
+- I would like the app to log errors
+- I would like to be able to send a notification to users that goes out via email and/or is pushed to their dashboard in the app
+- A basic API would be good for this app
+- Admin reporting should allow me to see import errors, sign ups, least active day and most active day and hours, active users, average items per user
+- If a subscription payment fails, I should be sent an email.
+- Add a feedback dropdown to the contact form
+
+
+For multi-house support, add a house selector (e.g., dropdown or tabs) at the top of the UI, with reports allowing users to select one or all houses. Store the active house in the user’s session for persistence.
+Simplify collaborator permissions for version 1.0: e.g., view-only or full edit (add/edit/delete) per house. Log all collaborator actions to resolve conflicts (e.g., “Collaborator X deleted item Y at timestamp Z”). Use database transactions to prevent race conditions.
+Implement a “soft delete” system for items, rooms, and accounts, where deleted data is marked as inactive and recoverable for 30 days (e.g., via a deleted_at column in MySQL). Allow users to restore deleted items/rooms from a “Trash” section.
+For bulk edit, present a table with editable fields (e.g., name, category, price) and validate inputs. Save changes only after user confirmation to prevent accidental overwrites.
+Expand admin notifications to include import errors (e.g., “User X’s import failed: 10 invalid rows”) and collaborator invites (e.g., “User Y invited Z as a collaborator”). Use a library for emails and store dashboard notifications in the database.
+Clarify admin reporting: e.g., “least/most active day” based on user logins or item edits, presented in a table with filters for date ranges. Use a library like Chart.js for visualizations (e.g., active users over time).
+Design the admin system to support a single admin for now but allow future expansion (e.g., an is_admin flag in the user table).
+Specify that Stripe handles subscription upgrades/downgrades with proration (e.g., charge/refund the difference). If a user upgrades, unlock additional houses/rooms immediately; if they downgrade, lock excess houses but retain data for 30 days.
+Enhance the affiliate report to include: discount code, assigned promoter, number of signups, total revenue (post-discount), and payout status (e.g., pending, paid). Use Stripe’s metadata to track discount codes per subscription.
+After the trial, prompt users with a subscription page showing available plans and warn that trial data will be locked (but not deleted) until they subscribe. Allow data export during the trial to avoid lock-in concerns.
+Add a cancellation policy: users can cancel via Stripe’s customer portal (integrated into settings), data is locked after the billing cycle ends,
+Specify that the admin interface for report customization uses a form-based UI where admins select an insurer, define column names, map them to app fields (e.g., “Item Name” → “Description”), and set the order. Allow admins to preview the report format before saving.
+For image storage, use local storage (e.g., /uploads directory) for testing, but plan for  AWS S3  for production. Make a migration script to move images from local to cloud storage when I get ready to launch .
+Implement error logging - storing logs in a file (e.g., /logs/app.log).
+Scope the API to a minimal set of endpoints for version 1.0, e.g., retrieving/exporting item lists or generating reports. Defer complex API features until you identify a clear use case (e.g., insurance company integration).
+Cache frequent queries (e.g., “All Items” view, report data) and cache static assets (e.g., CSS/JS) via HTTP headers. 
+Enhance spreadsheet import error handling: allow users to preview the import (e.g., show the first 10 rows with mapped fields), highlight invalid rows (e.g., missing required fields), and save valid rows even if some fail. Provide a downloadable error report for failed rows.
+Add a post-wizard onboarding flow (e.g., a checklist or tooltips) guiding users to add their first item, import a spreadsheet, and generate a report. This can be dismissed by experienced users.
+For image uploads, display clear requirements (e.g., “JPG/PNG, max 1500px wide, 6MB”) in the UI and show user-friendly error messages for invalid uploads (e.g., “Image too large, please upload a file under 6MB”). Use thumbnails in the “All Items” view and allow full-size views on the item detail page.
+Clarify the collaborator workflow: e.g., users enter a collaborator’s email, the app sends an invitation link, and collaborators log in with their own account. Provide a permissions management screen where users can toggle view/edit/add/delete rights per house.
+For the trial, display a prominent counter (e.g., “3/5 rooms used, 8/10 items in Kitchen”) and notify users when limits are reached (e.g., “Upgrade to add more items”). After the trial, lock additional rooms/items but allow viewing/editing of existing data until the user subscribes.
+Clarify in the privacy policy that user data is permanently deleted from the database upon request (or retained in backups for a set period, e.g., 30 days, for recovery purposes). Address collaborator data deletion (e.g., automatically revoked when the primary user deletes their account).
+For collaborators, require email verification for their accounts and allow primary users to revoke access instantly. Log collaborator actions (e.g., edits, deletions) for auditing.
+
+
+
+
+Outline a basic database schema, e.g.:
+users: id, name, email, password, phone, address, 2fa_secret, role (user/admin)
+houses: id, user_id, address
+rooms: id, house_id, name, notes
+items: id, room_id, name, serial_number, category, brand, model, price, date_acquired, status, condition, notes, is_imported
+images: id, item_id, path, size
+collaborators: id, user_id, house_id, collaborator_email, permissions (view/edit)
+insurance_formats: id, insurer_name, column_mappings (JSON)
+notifications: id, user_id, message, type (email/dashboard), sent_at
+
+Create the SQL file I can import in my database to create the tables.
+
+Add indexes on frequent queries (e.g., items.room_id, users.email) and foreign keys for referential integrity.
+Implement notifications: store dashboard notifications in a notifications table and send emails via a queue (e.g., with AWS SES or similar). Trigger notifications for events like import errors or subscription failures.
+All admin actions in ‘ADMIN MODE’ (e.g., viewing, editing, or deleting user data) will be logged in a database table (admin_logs: id, admin_id, user_id, action, timestamp). This ensures accountability and aids debugging.
+Bulk edit will use validation to check fields (e.g., price is numeric, category is valid). Validation errors will be displayed per row in the table with inline messages (e.g., ‘Invalid price’). To prevent conflicts, database transactions will ensure atomic updates. If a collaborator and primary user edit simultaneously, the last update wins, with actions logged for auditing.
+Add to the database schema: discount_codes: id, code, promoter_name, promo_fee, created_at
+subscriptions: id, user_id, stripe_subscription_id, discount_code_id, plan_id, status
+Affiliate reports will query the discount_codes and subscriptions tables to show code, promoter, signups, revenue (post-discount), and payout status, using Stripe metadata for verification.
+If a user on the 4-house plan attempts to add a fifth house, the app will display a message: ‘Need to add more houses? You might benefit from our commercial plans at [new domain] to add more properties.’ This will link to the separate product’s website.
+The house overview page shows room names with item counts in a card/grid/list view, and the user can click on a room to see a room overview page that shows the items within. The view on the overview page is sortable by name or item count or updated (oldest/newest)
+The API’s primary purpose for version 1.0 is to allow users to programmatically export their item lists or reports (e.g., for integration with personal finance tools). Future use cases (e.g., insurance company integration) will be explored post-launch.”
+
+
+- Do not bother validating the inurance details. There is no standard policy number, etc.
+- The insurance details should be: company, address 1 and 2, city, state, zip code, agent name, phone number, policy number, max coverage amount, notes.
+- The home address should have fields for: Address 1 and 2 (i.e for apartment number), city, state, and zip code. Each home should be given an optional name if the user has multiple properties. Otherwise the street address is used by default.
+
+

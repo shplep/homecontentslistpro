@@ -1,0 +1,8 @@
+{
+  "extends": ["next/core-web-vitals", "next/typescript"],
+  "rules": {
+    "prefer-const": "error",
+    "no-var": "error",
+    "no-unused-vars": ["error", { "argsIgnorePattern": "^_" }]
+  }
+}
