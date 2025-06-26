@@ -73,7 +73,9 @@ export default function DashboardPage() {
         <h1 className="dashboard-title">Home Contents Dashboard</h1>
         <div className="user-info">
           <span>Welcome, {session.user?.name || 'User'}</span>
-          <div className="user-avatar">{userInitials}</div>
+          <Link href="/dashboard/profile" className="user-avatar-link">
+            <div className="user-avatar">{userInitials}</div>
+          </Link>
           <button className="btn btn-outlined" onClick={handleSignOut}>
             Sign Out
           </button>

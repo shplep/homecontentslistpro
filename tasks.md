@@ -62,9 +62,13 @@
     - **End**: Users can manage items within rooms.
     - **Status**: ✅ COMPLETED - Full CRUD functionality implemented with API endpoints and UI
 
-12. [ ] **Implement Item Import/Export**
+12. [✓] **Implement Item Import/Export**
     - **Start**: Create import/export functionality for items.
     - **End**: Users can import/export items as CSV/Excel.
+    - **Status**: ✅ COMPLETED - Full import/export system:
+      - **Export**: CSV, JSON, and Excel formats with multiple scoping options
+      - **Import**: CSV/JSON file upload with preview, validation, and flexible options
+      - **Features**: Create missing houses/rooms, update existing items, skip duplicates, error handling
 
 ### Admin Interface
 
@@ -82,6 +86,7 @@
     - **Start**: Implement comprehensive reporting functionality for inventory analysis.
     - **End**: Users can generate and view detailed reports with filtering and export options.
     - **Status**: ✅ COMPLETED - Full reporting system with overview, category, room-by-room, and house summary reports
+    - **Updated**: ✅ PDF Export functionality added - Users can now export all report types as professional PDF documents
 
 ### Subscription Management
 

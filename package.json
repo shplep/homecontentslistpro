@@ -23,6 +23,8 @@
     "@types/nodemailer": "^6.4.17",
     "bcryptjs": "^3.0.2",
     "crypto": "^1.0.1",
+    "jspdf": "^3.0.1",
+    "jspdf-autotable": "^5.0.2",
     "mysql2": "^3.14.1",
     "next": "^14.2.4",
     "next-auth": "^4.24.11",
