@@ -3,6 +3,8 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
+export const dynamic = 'force-dynamic';
+
 // Helper function to get user from session cookie
 async function getUserFromRequest(request: NextRequest) {
   try {
@@ -33,8 +35,7 @@ async function getUserFromRequest(request: NextRequest) {
 export async function GET(request: NextRequest) {
   try {
     // For testing purposes, let's get user email from query params
-    const url = new URL(request.url);
-    const userEmail = url.searchParams.get('email');
+    const userEmail = request.nextUrl.searchParams.get('email');
     
     if (!userEmail) {
       return NextResponse.json({ error: 'User email required' }, { status: 400 });
