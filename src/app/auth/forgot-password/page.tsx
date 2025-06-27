@@ -69,7 +69,7 @@ export default function ForgotPasswordPage() {
             <strong>Email Sent</strong>
             <p>{message}</p>
             <div className="auth-links">
-              <Link href="/auth/login" className="auth-link">
+              <Link href="/app/auth/login" className="auth-link">
                 Back to Login
               </Link>
             </div>
@@ -106,13 +106,13 @@ export default function ForgotPasswordPage() {
             <div className="auth-links">
               <p>
                 Remember your password?{' '}
-                <Link href="/auth/login" className="auth-link">
+                <Link href="/app/auth/login" className="auth-link">
                   Sign in here
                 </Link>
               </p>
               <p>
                 Don&apos;t have an account?{' '}
-                <Link href="/auth/register" className="auth-link">
+                <Link href="/app/auth/register" className="auth-link">
                   Create one here
                 </Link>
               </p>

@@ -48,6 +48,7 @@ const handler = NextAuth({
       },
     }),
   ],
+  basePath: '/app/api/auth',
   session: {
     strategy: 'jwt' as const,
   },
@@ -67,8 +68,8 @@ const handler = NextAuth({
     },
   },
   pages: {
-    signIn: '/auth/login',
-    newUser: '/auth/register',
+    signIn: '/app/auth/login',
+    newUser: '/app/auth/register',
   },
   secret: process.env.NEXTAUTH_SECRET,
 } as any);

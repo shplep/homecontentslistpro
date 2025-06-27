@@ -155,14 +155,14 @@ function ResetPasswordForm() {
             </div>
             <div className='mt-6 space-y-2'>
               <Link
-                href='/auth/forgot-password'
+                href='/app/auth/forgot-password'
                 className='font-medium text-indigo-600 hover:text-indigo-500'
               >
                 Request a new reset link
               </Link>
               <br />
               <Link
-                href='/auth/login'
+                href='/app/auth/login'
                 className='font-medium text-indigo-600 hover:text-indigo-500'
               >
                 Back to login
@@ -190,7 +190,7 @@ function ResetPasswordForm() {
             </div>
             <div className='mt-6'>
               <Link
-                href='/auth/login'
+                href='/app/auth/login'
                 className='font-medium text-indigo-600 hover:text-indigo-500'
               >
                 Go to login now
@@ -299,7 +299,7 @@ function ResetPasswordForm() {
 
           <div className='text-center'>
             <Link
-              href='/auth/login'
+              href='/app/auth/login'
               className='font-medium text-indigo-600 hover:text-indigo-500'
             >
               Back to login

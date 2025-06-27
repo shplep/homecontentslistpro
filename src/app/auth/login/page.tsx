@@ -70,9 +70,9 @@ export default function LoginPage() {
 
         // Redirect based on user role
         if ((session?.user as any)?.role === 'ADMIN') {
-          router.push('/admin/dashboard');
+          router.push('/app/admin/dashboard');
         } else {
-          router.push('/dashboard');
+          router.push('/app/dashboard');
         }
       }
     } catch (error) {
@@ -148,12 +148,12 @@ export default function LoginPage() {
           <div className="auth-links">
             <p>
               Don&apos;t have an account?{' '}
-              <Link href="/auth/register" className="auth-link">
+              <Link href="/app/auth/register" className="auth-link">
                 Create one here
               </Link>
             </p>
             <p>
-              <Link href="/auth/forgot-password" className="auth-link">
+              <Link href="/app/auth/forgot-password" className="auth-link">
                 Forgot your password?
               </Link>
             </p>
