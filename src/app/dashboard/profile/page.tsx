@@ -98,7 +98,7 @@ export default function ProfilePage() {
     setMessage('');
 
     try {
-      const response = await fetch('/api/user/profile', {
+      const response = await fetch('/app/api/user/profile', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

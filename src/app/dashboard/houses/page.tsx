@@ -50,7 +50,7 @@ export default function HousesPage() {
     if (!session?.user?.email) return;
 
     try {
-      const response = await fetch(`/api/houses?userEmail=${encodeURIComponent(session.user.email)}`);
+      const response = await fetch(`/app/api/houses?userEmail=${encodeURIComponent(session.user.email)}`);
       const data = await response.json();
 
       if (response.ok) {
@@ -78,7 +78,7 @@ export default function HousesPage() {
     if (!session?.user?.email) return;
 
     try {
-      const url = editingHouse ? `/api/houses/${editingHouse.id}` : '/api/houses';
+      const url = editingHouse ? `/app/api/houses/${editingHouse.id}` : '/app/api/houses';
       const method = editingHouse ? 'PUT' : 'POST';
 
       const response = await fetch(url, {
@@ -133,7 +133,7 @@ export default function HousesPage() {
     }
 
     try {
-      const response = await fetch(`/api/houses/${house.id}?userEmail=${encodeURIComponent(session.user.email)}`, {
+      const response = await fetch(`/app/api/houses/${house.id}?userEmail=${encodeURIComponent(session.user.email)}`, {
         method: 'DELETE',
       });
 

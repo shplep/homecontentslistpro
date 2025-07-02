@@ -221,7 +221,7 @@ export default function ImportPage() {
       setImporting(true);
       setErrors({});
       
-      const response = await fetch('/api/import', {
+              const response = await fetch('/app/api/import', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
