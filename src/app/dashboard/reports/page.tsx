@@ -179,8 +179,10 @@ export default function ReportsPage() {
       if (format === 'pdf') {
         setExportingPDF(true);
         await generatePDFReport(reportType);
+      } else if (format === 'csv') {
+        generateCSVReport(reportType);
       } else {
-        // For CSV and Excel, show placeholder for now
+        // For Excel, show placeholder for now
         alert(`Exporting ${reportType} as ${format.toUpperCase()}... (Feature coming soon)`);
       }
     } catch (error) {
@@ -367,6 +369,79 @@ export default function ReportsPage() {
       headStyles: { fillColor: [59, 130, 246] },
       margin: { left: margin, right: margin }
     });
+  };
+
+  const generateCSVReport = (reportType: string) => {
+    if (!reportData) return;
+
+    let csvContent = '';
+    const timestamp = new Date().toISOString().split('T')[0];
+    const filterText = selectedHouse === 'all' ? 'All Houses' : 
+      reportData.houseReports.find(h => h.id.toString() === selectedHouse)?.name || 
+      `${reportData.houseReports.find(h => h.id.toString() === selectedHouse)?.address1}`;
+
+    // Add header information
+    csvContent += `HomeContentsListPro V2 - ${reportType.charAt(0).toUpperCase() + reportType.slice(1)} Report\n`;
+    csvContent += `Generated on: ${new Date().toLocaleDateString()}\n`;
+    csvContent += `Filter: ${filterText}\n\n`;
+
+    // Add summary statistics
+    csvContent += 'Summary Statistics\n';
+    csvContent += 'Metric,Value\n';
+    csvContent += `Total Inventory Value,"${formatCurrency(reportData.totalValue)}"\n`;
+    csvContent += `Total Items,${reportData.totalItems}\n`;
+    csvContent += `Total Rooms,${reportData.totalRooms}\n`;
+    csvContent += `Total Houses,${reportData.totalHouses}\n\n`;
+
+    // Generate content based on report type
+    switch (reportType) {
+      case 'overview':
+        csvContent += 'Additional Metrics\n';
+        csvContent += 'Metric,Value\n';
+        csvContent += `Average Item Value,"${formatCurrency(reportData.totalItems > 0 ? reportData.totalValue / reportData.totalItems : 0)}"\n`;
+        csvContent += `Average Room Value,"${formatCurrency(reportData.totalRooms > 0 ? reportData.totalValue / reportData.totalRooms : 0)}"\n`;
+        csvContent += `Items per Room,${reportData.totalRooms > 0 ? Math.round(reportData.totalItems / reportData.totalRooms) : 0}\n`;
+        csvContent += `Rooms per House,${reportData.totalHouses > 0 ? Math.round(reportData.totalRooms / reportData.totalHouses) : 0}\n`;
+        break;
+
+      case 'categories':
+        csvContent += 'Value by Category\n';
+        csvContent += 'Category,Item Count,Total Value,Average Value,% of Total\n';
+        reportData.categoryReports.forEach(cat => {
+          const percentage = ((cat.totalValue / reportData.totalValue) * 100).toFixed(1);
+          csvContent += `"${cat.category}",${cat.itemCount},"${formatCurrency(cat.totalValue)}","${formatCurrency(cat.averageValue)}",${percentage}%\n`;
+        });
+        break;
+
+      case 'rooms':
+        csvContent += 'Room-by-Room Analysis\n';
+        csvContent += 'Room,House,Items,Total Value\n';
+        reportData.roomReports.forEach(room => {
+          csvContent += `"${room.name}","${room.houseName}",${room.stats.itemCount},"${formatCurrency(room.stats.totalValue)}"\n`;
+        });
+        break;
+
+      case 'houses':
+        csvContent += 'House Summary\n';
+        csvContent += 'Name,Address,Rooms,Items,Total Value\n';
+        reportData.houseReports.forEach(house => {
+          const name = house.name || 'Unnamed';
+          const address = `${house.address1}, ${house.city}, ${house.state}`;
+          csvContent += `"${name}","${address}",${house.stats.roomCount},${house.stats.itemCount},"${formatCurrency(house.stats.totalValue)}"\n`;
+        });
+        break;
+    }
+
+    // Create and download the CSV file
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `homecontents-${reportType}-report-${timestamp}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   const formatCurrency = (amount: number) => {
