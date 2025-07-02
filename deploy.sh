@@ -5,6 +5,16 @@
 
 echo "🚀 Starting deployment..."
 
+# Navigate to the correct directory
+echo "📂 Navigating to app directory..."
+cd /home/sp-ssh/htdocs/homecontentslistpro.com/app
+
+# Check if we're in a git repository
+if [ ! -d ".git" ]; then
+    echo "❌ Error: Not in a git repository. Please check the directory path."
+    exit 1
+fi
+
 # Pull latest changes
 echo "📥 Pulling latest changes from GitHub..."
 git pull origin fresh-start
