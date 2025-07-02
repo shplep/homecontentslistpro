@@ -8,5 +8,9 @@ interface ProvidersProps {
 }
 
 export default function Providers({ children }: ProvidersProps) {
-  return <SessionProvider>{children}</SessionProvider>;
+  return (
+    <SessionProvider basePath="/app/api/auth">
+      {children}
+    </SessionProvider>
+  );
 }
