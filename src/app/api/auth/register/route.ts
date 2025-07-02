@@ -1,14 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '@/lib/prisma';
 
 export async function POST(request: NextRequest) {
-  const prisma = new PrismaClient();
+  console.log('Registration attempt started');
   try {
     const { name, email, password } = await request.json();
+    console.log('Registration data received:', { name, email, password: '***' });
 
     // Basic validation
     if (!email || !password) {
+      console.log('Registration failed: Missing email or password');
       return NextResponse.json(
         { error: 'Email and password are required' },
         { status: 400 }
@@ -33,11 +35,13 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if user already exists
+    console.log('Checking if user exists:', email);
     const existingUser = await prisma.user.findUnique({
       where: { email },
     });
 
     if (existingUser) {
+      console.log('Registration failed: User already exists');
       return NextResponse.json(
         { error: 'User with this email already exists' },
         { status: 409 }
@@ -48,6 +52,7 @@ export async function POST(request: NextRequest) {
     const hashedPassword = await bcrypt.hash(password, 12);
 
     // Create user
+    console.log('Creating new user:', email);
     const user = await prisma.user.create({
       data: {
         name: name || null,
@@ -64,6 +69,7 @@ export async function POST(request: NextRequest) {
       },
     });
 
+    console.log('User created successfully:', user.id);
     return NextResponse.json(
       {
         message: 'User created successfully',
@@ -77,7 +83,5 @@ export async function POST(request: NextRequest) {
       { error: 'Internal server error' },
       { status: 500 }
     );
-  } finally {
-    await prisma.$disconnect();
   }
 }
