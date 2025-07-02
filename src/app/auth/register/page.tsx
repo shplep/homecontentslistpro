@@ -65,6 +65,7 @@ export default function RegisterPage() {
     setIsLoading(true);
 
     try {
+      console.log('Making registration request to:', '/api/auth/register');
       const response = await fetch('/api/auth/register', {
         method: 'POST',
         headers: {
@@ -76,6 +77,9 @@ export default function RegisterPage() {
           password: formData.password,
         }),
       });
+
+      console.log('Registration response status:', response.status);
+      console.log('Registration response URL:', response.url);
 
       const data = await response.json();
 
