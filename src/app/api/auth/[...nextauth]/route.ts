@@ -52,6 +52,13 @@ const handler = NextAuth({
     strategy: 'jwt' as const,
   },
   callbacks: {
+    async redirect({ url, baseUrl }: any) {
+      // Handle redirects properly with basePath
+      if (url.startsWith('/')) {
+        return `${baseUrl}${url}`;
+      }
+      return url.startsWith(baseUrl) ? url : baseUrl;
+    },
     async jwt({ token, user }: any) {
       if (user) {
         token.role = user.role;
