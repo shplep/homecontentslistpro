@@ -13,8 +13,11 @@ const handler = NextAuth({
         password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials: any) {
+        console.log('Authorization attempt for:', credentials?.email);
+        
         if (!credentials?.email || !credentials?.password) {
-          return null;
+          console.log('Missing credentials');
+          throw new Error('Missing email or password');
         }
 
         try {
@@ -22,8 +25,11 @@ const handler = NextAuth({
             where: { email: credentials.email },
           });
 
+          console.log('User found:', !!user);
+
           if (!user) {
-            return null;
+            console.log('User not found for email:', credentials.email);
+            throw new Error('No user found with this email');
           }
 
           const isPasswordValid = await bcrypt.compare(
@@ -31,10 +37,14 @@ const handler = NextAuth({
             user.password
           );
 
+          console.log('Password valid:', isPasswordValid);
+
           if (!isPasswordValid) {
-            return null;
+            console.log('Invalid password for user:', credentials.email);
+            throw new Error('Invalid password');
           }
 
+          console.log('Authentication successful for:', user.email);
           return {
             id: user.id.toString(),
             email: user.email,
@@ -43,7 +53,7 @@ const handler = NextAuth({
           };
         } catch (error) {
           console.error('Authentication error:', error);
-          return null;
+          throw error;
         }
       },
     }),
