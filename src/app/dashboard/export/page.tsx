@@ -56,7 +56,7 @@ export default function ExportPage() {
   const fetchHouses = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`/api/houses?userEmail=${encodeURIComponent(session?.user?.email || '')}`);
+      const response = await fetch(`/app/api/houses?userEmail=${encodeURIComponent(session?.user?.email || '')}`);
       if (response.ok) {
         const data = await response.json();
         setHouses(data.houses || []);
@@ -90,7 +90,7 @@ export default function ExportPage() {
         params.append('category', exportOptions.category);
       }
 
-      const response = await fetch(`/api/export?${params.toString()}`);
+      const response = await fetch(`/app/api/export?${params.toString()}`);
       
       if (!response.ok) {
         throw new Error('Export failed');

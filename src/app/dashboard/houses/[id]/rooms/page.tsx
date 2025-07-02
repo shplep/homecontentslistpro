@@ -59,7 +59,7 @@ export default function RoomsPage() {
       setLoading(true);
       
       // Fetch house details
-      const houseResponse = await fetch(`/api/houses/${houseId}?userEmail=${encodeURIComponent(session?.user?.email || '')}`);
+      const houseResponse = await fetch(`/app/api/houses/${houseId}?userEmail=${encodeURIComponent(session?.user?.email || '')}`);
       if (houseResponse.ok) {
         const houseData = await houseResponse.json();
         setHouse(houseData.house); // Extract the house object from the response
@@ -69,7 +69,7 @@ export default function RoomsPage() {
       }
 
       // Fetch rooms for this house
-      const roomsResponse = await fetch(`/api/rooms?userEmail=${encodeURIComponent(session?.user?.email || '')}&houseId=${houseId}`);
+      const roomsResponse = await fetch(`/app/api/rooms?userEmail=${encodeURIComponent(session?.user?.email || '')}&houseId=${houseId}`);
       if (roomsResponse.ok) {
         const roomsData = await roomsResponse.json();
         setRooms(roomsData);
@@ -110,14 +110,14 @@ export default function RoomsPage() {
       
       if (editingRoom) {
         // Update existing room
-        response = await fetch(`/api/rooms/${editingRoom.id}?userEmail=${encodeURIComponent(session?.user?.email || '')}`, {
+        response = await fetch(`/app/api/rooms/${editingRoom.id}?userEmail=${encodeURIComponent(session?.user?.email || '')}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(formData)
         });
       } else {
         // Create new room
-        response = await fetch(`/api/rooms?userEmail=${encodeURIComponent(session?.user?.email || '')}`, {
+        response = await fetch(`/app/api/rooms?userEmail=${encodeURIComponent(session?.user?.email || '')}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -159,7 +159,7 @@ export default function RoomsPage() {
     if (!confirm(`Are you sure you want to delete "${room.name}"?`)) return;
 
     try {
-      const response = await fetch(`/api/rooms/${room.id}?userEmail=${encodeURIComponent(session?.user?.email || '')}`, {
+      const response = await fetch(`/app/api/rooms/${room.id}?userEmail=${encodeURIComponent(session?.user?.email || '')}`, {
         method: 'DELETE'
       });
 

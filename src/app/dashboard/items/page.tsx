@@ -59,7 +59,7 @@ export default function AllItemsPage() {
       setLoading(true);
       
       // Fetch all houses first
-      const housesResponse = await fetch(`/api/houses?userEmail=${encodeURIComponent(session?.user?.email || '')}`);
+      const housesResponse = await fetch(`/app/api/houses?userEmail=${encodeURIComponent(session?.user?.email || '')}`);
       if (housesResponse.ok) {
         const housesData = await housesResponse.json();
         const validHousesData = Array.isArray(housesData.houses) ? housesData.houses : [];
@@ -68,13 +68,13 @@ export default function AllItemsPage() {
         // Collect all items from all houses
         const allItemsPromises = validHousesData.map(async (house: House) => {
           // Get rooms for this house
-          const roomsResponse = await fetch(`/api/rooms?userEmail=${encodeURIComponent(session?.user?.email || '')}&houseId=${house.id}`);
+          const roomsResponse = await fetch(`/app/api/rooms?userEmail=${encodeURIComponent(session?.user?.email || '')}&houseId=${house.id}`);
           if (roomsResponse.ok) {
             const rooms = await roomsResponse.json();
             
             // Get items for each room
             const roomItemsPromises = rooms.map(async (room: any) => {
-              const itemsResponse = await fetch(`/api/items?userEmail=${encodeURIComponent(session?.user?.email || '')}&roomId=${room.id}`);
+              const itemsResponse = await fetch(`/app/api/items?userEmail=${encodeURIComponent(session?.user?.email || '')}&roomId=${room.id}`);
               if (itemsResponse.ok) {
                 const items = await itemsResponse.json();
                 return items.map((item: any) => ({

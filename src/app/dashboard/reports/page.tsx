@@ -70,7 +70,7 @@ export default function ReportsPage() {
       setError('');
 
       // Fetch all data needed for reports
-      const housesResponse = await fetch(`/api/houses?userEmail=${encodeURIComponent(session?.user?.email || '')}`);
+      const housesResponse = await fetch(`/app/api/houses?userEmail=${encodeURIComponent(session?.user?.email || '')}`);
       if (!housesResponse.ok) throw new Error('Failed to fetch houses');
       const { houses } = await housesResponse.json();
 
@@ -107,7 +107,7 @@ export default function ReportsPage() {
         }
 
         // Fetch rooms for this house
-        const roomsResponse = await fetch(`/api/rooms?userEmail=${encodeURIComponent(session?.user?.email || '')}&houseId=${house.id}`);
+        const roomsResponse = await fetch(`/app/api/rooms?userEmail=${encodeURIComponent(session?.user?.email || '')}&houseId=${house.id}`);
         if (roomsResponse.ok) {
           const rooms = await roomsResponse.json();
           
@@ -127,7 +127,7 @@ export default function ReportsPage() {
             });
 
             // Fetch items for category breakdown
-            const itemsResponse = await fetch(`/api/items?userEmail=${encodeURIComponent(session?.user?.email || '')}&roomId=${room.id}`);
+            const itemsResponse = await fetch(`/app/api/items?userEmail=${encodeURIComponent(session?.user?.email || '')}&roomId=${room.id}`);
             if (itemsResponse.ok) {
               const items = await itemsResponse.json();
               

@@ -42,7 +42,7 @@ export default function RoomsPage() {
   const fetchHouses = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`/api/houses?userEmail=${encodeURIComponent(session?.user?.email || '')}`);
+      const response = await fetch(`/app/api/houses?userEmail=${encodeURIComponent(session?.user?.email || '')}`);
       if (!response.ok) {
         throw new Error('Failed to fetch houses');
       }

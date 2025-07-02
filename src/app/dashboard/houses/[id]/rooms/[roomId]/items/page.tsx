@@ -93,14 +93,14 @@ export default function ItemsPage() {
       setLoading(true);
       
       // Fetch house details
-      const houseResponse = await fetch(`/api/houses/${houseId}?userEmail=${encodeURIComponent(session?.user?.email || '')}`);
+      const houseResponse = await fetch(`/app/api/houses/${houseId}?userEmail=${encodeURIComponent(session?.user?.email || '')}`);
       if (houseResponse.ok) {
         const houseData = await houseResponse.json();
         setHouse(houseData.house);
       }
 
       // Fetch room details from rooms API  
-      const roomsResponse = await fetch(`/api/rooms?userEmail=${encodeURIComponent(session?.user?.email || '')}&houseId=${houseId}`);
+      const roomsResponse = await fetch(`/app/api/rooms?userEmail=${encodeURIComponent(session?.user?.email || '')}&houseId=${houseId}`);
       if (roomsResponse.ok) {
         const rooms = await roomsResponse.json();
         const currentRoom = rooms.find((r: any) => r.id.toString() === roomId);
@@ -114,7 +114,7 @@ export default function ItemsPage() {
       }
 
       // Fetch items
-      const itemsResponse = await fetch(`/api/items?userEmail=${encodeURIComponent(session?.user?.email || '')}&roomId=${roomId}`);
+      const itemsResponse = await fetch(`/app/api/items?userEmail=${encodeURIComponent(session?.user?.email || '')}&roomId=${roomId}`);
       if (itemsResponse.ok) {
         const itemsData = await itemsResponse.json();
         setItems(itemsData);
@@ -163,13 +163,13 @@ export default function ItemsPage() {
       };
       
       if (editingItem) {
-        response = await fetch(`/api/items/${editingItem.id}?userEmail=${encodeURIComponent(session?.user?.email || '')}`, {
+        response = await fetch(`/app/api/items/${editingItem.id}?userEmail=${encodeURIComponent(session?.user?.email || '')}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(submitData)
         });
       } else {
-        response = await fetch(`/api/items?userEmail=${encodeURIComponent(session?.user?.email || '')}`, {
+        response = await fetch(`/app/api/items?userEmail=${encodeURIComponent(session?.user?.email || '')}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(submitData)
@@ -216,7 +216,7 @@ export default function ItemsPage() {
     if (!confirm(`Are you sure you want to delete "${item.name}"?`)) return;
 
     try {
-      const response = await fetch(`/api/items/${item.id}?userEmail=${encodeURIComponent(session?.user?.email || '')}`, {
+      const response = await fetch(`/app/api/items/${item.id}?userEmail=${encodeURIComponent(session?.user?.email || '')}`, {
         method: 'DELETE'
       });
 

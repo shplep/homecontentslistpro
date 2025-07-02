@@ -53,7 +53,7 @@ export default function ImportPage() {
   const fetchHouses = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`/api/houses?userEmail=${encodeURIComponent(session?.user?.email || '')}`);
+      const response = await fetch(`/app/api/houses?userEmail=${encodeURIComponent(session?.user?.email || '')}`);
       if (response.ok) {
         const data = await response.json();
         setHouses(data.houses || []);
