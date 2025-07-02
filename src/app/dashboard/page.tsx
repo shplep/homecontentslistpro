@@ -41,7 +41,7 @@ export default function DashboardPage() {
   }, []);
 
   const handleSignOut = () => {
-    signOut({ callbackUrl: '/' });
+    signOut({ callbackUrl: '/auth/login' });
   };
 
   if (status === 'loading') {
