@@ -29,16 +29,34 @@ export default function DashboardPage() {
     }
   }, [session, status, router]);
 
-  // TODO: Fetch real stats from API
+  // Fetch real stats from API
   useEffect(() => {
-    // Simulated data for now
-    setStats({
-      totalHouses: 1,
-      totalRooms: 6,
-      totalItems: 42,
-      totalValue: 25000,
-    });
-  }, []);
+    const fetchStats = async () => {
+      if (!session?.user?.email) return;
+      
+      try {
+        const response = await fetch(`/app/api/dashboard/stats?userEmail=${encodeURIComponent(session.user.email)}`);
+        if (!response.ok) {
+          throw new Error('Failed to fetch dashboard stats');
+        }
+        const data = await response.json();
+        setStats(data);
+      } catch (error) {
+        console.error('Error fetching dashboard stats:', error);
+        // Keep default stats on error
+        setStats({
+          totalHouses: 0,
+          totalRooms: 0,
+          totalItems: 0,
+          totalValue: 0,
+        });
+      }
+    };
+
+    if (session?.user?.email) {
+      fetchStats();
+    }
+  }, [session?.user?.email]);
 
   const handleSignOut = () => {
     signOut({ callbackUrl: '/auth/login' });
