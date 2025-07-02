@@ -30,7 +30,7 @@ export default function ForgotPasswordPage() {
     }
 
     try {
-      const response = await fetch('/app/api/auth/forgot-password', {
+      const response = await fetch('/api/auth/forgot-password', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -69,7 +69,7 @@ export default function ForgotPasswordPage() {
             <strong>Email Sent</strong>
             <p>{message}</p>
             <div className="auth-links">
-              <Link href="/app/auth/login" className="auth-link">
+              <Link href="/auth/login" className="auth-link">
                 Back to Login
               </Link>
             </div>
@@ -106,13 +106,13 @@ export default function ForgotPasswordPage() {
             <div className="auth-links">
               <p>
                 Remember your password?{' '}
-                <Link href="/app/auth/login" className="auth-link">
+                <Link href="/auth/login" className="auth-link">
                   Sign in here
                 </Link>
               </p>
               <p>
                 Don&apos;t have an account?{' '}
-                <Link href="/app/auth/register" className="auth-link">
+                <Link href="/auth/register" className="auth-link">
                   Create one here
                 </Link>
               </p>
