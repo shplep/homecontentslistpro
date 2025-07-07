@@ -31,6 +31,7 @@ model User {
   subscriptions Subscription[]
   adminLogs     AdminLog[]     @relation("AdminActions")
   userLogs      AdminLog[]     @relation("UserActions")
+  insuranceInfo InsuranceInfo[]
 
   @@map("users")
 }
@@ -57,10 +58,11 @@ model House {
   @@map("houses")
 }
 
-// Insurance information for each house
+// Insurance information for users and houses
 model InsuranceInfo {
   id             Int     @id @default(autoincrement())
-  houseId        Int     @unique @map("house_id")
+  userId         Int?    @map("user_id")           // User-level insurance (optional)
+  houseId        Int?    @unique @map("house_id")   // House-level insurance (optional)
   company        String
   address1       String  @map("address_1")
   address2       String? @map("address_2")
@@ -70,13 +72,15 @@ model InsuranceInfo {
   agentName      String? @map("agent_name")
   phoneNumber    String? @map("phone_number")
   policyNumber   String? @map("policy_number")
+  claimNumber    String? @map("claim_number")
   maxCoverage    Decimal? @map("max_coverage")
   notes          String?
   createdAt      DateTime @default(now()) @map("created_at")
   updatedAt      DateTime @updatedAt @map("updated_at")
 
   // Relations
-  house House @relation(fields: [houseId], references: [id], onDelete: Cascade)
+  user  User?  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  house House? @relation(fields: [houseId], references: [id], onDelete: Cascade)
 
   @@map("insurance_info")
 }

@@ -23,6 +23,7 @@ interface ProfileData {
   agentName: string;
   agentPhone: string;
   policyNumber: string;
+  claimNumber: string;
   maxCoverage: string;
   insuranceNotes: string;
 }
@@ -48,6 +49,7 @@ export default function ProfilePage() {
     agentName: '',
     agentPhone: '',
     policyNumber: '',
+    claimNumber: '',
     maxCoverage: '',
     insuranceNotes: '',
   });
@@ -76,7 +78,7 @@ export default function ProfilePage() {
   const fetchProfileData = async () => {
     try {
       if (session?.user?.email) {
-        const response = await fetch(`/api/user/profile?email=${encodeURIComponent(session.user.email)}`);
+        const response = await fetch(`/app/api/user/profile?email=${encodeURIComponent(session.user.email)}`);
         if (response.ok) {
           const data = await response.json();
           setProfileData(prev => ({ ...prev, ...data }));
@@ -449,19 +451,34 @@ export default function ProfilePage() {
                     />
                   </div>
                   <div className="form-group">
-                    <label className="form-label" htmlFor="maxCoverage">
-                      Maximum Coverage Amount
+                    <label className="form-label" htmlFor="claimNumber">
+                      Claim Number
                     </label>
                     <input
                       type="text"
-                      id="maxCoverage"
-                      name="maxCoverage"
-                      value={profileData.maxCoverage}
+                      id="claimNumber"
+                      name="claimNumber"
+                      value={profileData.claimNumber}
                       onChange={handleInputChange}
                       className="form-input"
-                      placeholder="$500,000"
+                      placeholder="Optional"
                     />
                   </div>
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label" htmlFor="maxCoverage">
+                    Maximum Coverage Amount
+                  </label>
+                  <input
+                    type="text"
+                    id="maxCoverage"
+                    name="maxCoverage"
+                    value={profileData.maxCoverage}
+                    onChange={handleInputChange}
+                    className="form-input"
+                    placeholder="$500,000"
+                  />
                 </div>
 
                 <div className="form-group">

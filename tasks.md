@@ -45,6 +45,10 @@
 8. [x] **Implement Profile Setup Page**
    - **Start**: Create a profile setup page for user details.
    - **End**: Users can update their profile information.
+   - **Status**: ✅ COMPLETED - Added "Claim Number" field to Insurance Details section
+   - **Database Migration**: ✅ COMPLETED - Migrated from SQLite to remote MySQL database
+   - **User-Level Insurance**: ✅ COMPLETED - Modified insurance system to allow saving insurance info without requiring a house first
+   - **Profile API Fix**: ✅ COMPLETED - Fixed API routing issue that prevented insurance data from displaying in profile
 
 ### House and Room Management
 

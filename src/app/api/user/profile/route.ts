@@ -71,7 +71,12 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // Return profile data (for now, insurance fields are empty until we add them to the database)
+    // Get insurance information from the user's profile (user-level insurance)
+    const userInsurance = await prisma.insuranceInfo.findFirst({
+      where: { userId: user.id },
+    });
+
+    // Return profile data
     return NextResponse.json({
       name: user.name || '',
       email: user.email || '',
@@ -81,17 +86,18 @@ export async function GET(request: NextRequest) {
       city,
       state,
       zipCode,
-      insuranceCompany: '',
-      insuranceAddress1: '',
-      insuranceAddress2: '',
-      insuranceCity: '',
-      insuranceState: '',
-      insuranceZipCode: '',
-      agentName: '',
-      agentPhone: '',
-      policyNumber: '',
-      maxCoverage: '',
-      insuranceNotes: '',
+              insuranceCompany: userInsurance?.company || '',
+        insuranceAddress1: userInsurance?.address1 || '',
+        insuranceAddress2: userInsurance?.address2 || '',
+        insuranceCity: userInsurance?.city || '',
+        insuranceState: userInsurance?.state || '',
+        insuranceZipCode: userInsurance?.zipCode || '',
+        agentName: userInsurance?.agentName || '',
+        agentPhone: userInsurance?.phoneNumber || '',
+        policyNumber: userInsurance?.policyNumber || '',
+        claimNumber: userInsurance?.claimNumber || '',
+        maxCoverage: userInsurance?.maxCoverage?.toString() || '',
+        insuranceNotes: userInsurance?.notes || '',
     });
   } catch (error) {
     console.error('Profile fetch error:', error);
@@ -113,7 +119,7 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: 'Name and email are required' }, { status: 400 });
     }
 
-    // For now, we can only update the fields that exist in the current User model
+    // Update user information
     const updatedUser = await prisma.user.update({
       where: { email: profileData.email },
       data: {
@@ -133,8 +139,44 @@ export async function PUT(request: NextRequest) {
       },
     });
 
-    // TODO: Once we add the insurance fields to the database schema,
-    // we can store the insurance information as well
+    // Handle insurance information at user level
+    if (profileData.insuranceCompany || profileData.policyNumber || profileData.claimNumber) {
+      // Find existing user-level insurance info
+      const existingInsurance = await prisma.insuranceInfo.findFirst({
+        where: { userId: updatedUser.id },
+      });
+
+      const insuranceData = {
+        company: profileData.insuranceCompany || '',
+        address1: profileData.insuranceAddress1 || '',
+        address2: profileData.insuranceAddress2 || null,
+        city: profileData.insuranceCity || '',
+        state: profileData.insuranceState || '',
+        zipCode: profileData.insuranceZipCode || '',
+        agentName: profileData.agentName || null,
+        phoneNumber: profileData.agentPhone || null,
+        policyNumber: profileData.policyNumber || null,
+        claimNumber: profileData.claimNumber || null,
+        maxCoverage: profileData.maxCoverage ? parseFloat(profileData.maxCoverage.replace(/[^0-9.]/g, '')) : null,
+        notes: profileData.insuranceNotes || null,
+      };
+
+      if (existingInsurance) {
+        // Update existing insurance info
+        await prisma.insuranceInfo.update({
+          where: { id: existingInsurance.id },
+          data: insuranceData,
+        });
+      } else {
+        // Create new insurance info linked to user
+        await prisma.insuranceInfo.create({
+          data: {
+            userId: updatedUser.id,
+            ...insuranceData,
+          },
+        });
+      }
+    }
 
     return NextResponse.json({
       message: 'Profile updated successfully',
