@@ -28,7 +28,11 @@ export default function AdminMaintenancePage() {
   const [activeTab, setActiveTab] = useState('overview');
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState<MaintenanceStats | null>(null);
-  const [cleanupLoading, setCleanupLoading] = useState(false);
+  const [orphanedLoading, setOrphanedLoading] = useState(false);
+  const [duplicatesLoading, setDuplicatesLoading] = useState(false);
+  const [inactiveLoading, setInactiveLoading] = useState(false);
+  const [cacheLoading, setCacheLoading] = useState(false);
+  const [optimizeLoading, setOptimizeLoading] = useState(false);
   const [cleanupResult, setCleanupResult] = useState<CleanupResult | null>(null);
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
 
@@ -64,10 +68,44 @@ export default function AdminMaintenancePage() {
     }
   };
 
+  // Helper function to get loading state for each cleanup type
+  const getLoadingState = (type: string) => {
+    switch (type) {
+      case 'orphaned':
+        return orphanedLoading;
+      case 'duplicates':
+        return duplicatesLoading;
+      case 'inactive':
+        return inactiveLoading;
+      case 'cache':
+        return cacheLoading;
+      default:
+        return false;
+    }
+  };
+
   const performCleanup = async (type: string) => {
     if (!session?.user?.email) return;
     
-    setCleanupLoading(true);
+    // Set the appropriate loading state based on cleanup type
+    const setLoadingState = (loading: boolean) => {
+      switch (type) {
+        case 'orphaned':
+          setOrphanedLoading(loading);
+          break;
+        case 'duplicates':
+          setDuplicatesLoading(loading);
+          break;
+        case 'inactive':
+          setInactiveLoading(loading);
+          break;
+        case 'cache':
+          setCacheLoading(loading);
+          break;
+      }
+    };
+
+    setLoadingState(true);
     setCleanupResult(null);
     setMessage(null);
 
@@ -91,14 +129,14 @@ export default function AdminMaintenancePage() {
     } catch (error) {
       setMessage({ type: 'error', text: 'Failed to perform cleanup' });
     } finally {
-      setCleanupLoading(false);
+      setLoadingState(false);
     }
   };
 
   const optimizeDatabase = async () => {
     if (!session?.user?.email) return;
     
-    setCleanupLoading(true);
+    setOptimizeLoading(true);
     setMessage(null);
 
     try {
@@ -118,7 +156,7 @@ export default function AdminMaintenancePage() {
     } catch (error) {
       setMessage({ type: 'error', text: 'Failed to optimize database' });
     } finally {
-      setCleanupLoading(false);
+      setOptimizeLoading(false);
     }
   };
 
@@ -291,19 +329,19 @@ export default function AdminMaintenancePage() {
                   </p>
                   <button
                     onClick={() => performCleanup('orphaned')}
-                    disabled={cleanupLoading}
+                    disabled={orphanedLoading}
                     style={{
                       padding: '8px 16px',
                       backgroundColor: '#dc3545',
                       color: 'white',
                       border: 'none',
                       borderRadius: '4px',
-                      cursor: cleanupLoading ? 'not-allowed' : 'pointer',
+                      cursor: orphanedLoading ? 'not-allowed' : 'pointer',
                       fontSize: '14px',
-                      opacity: cleanupLoading ? 0.6 : 1
+                      opacity: orphanedLoading ? 0.6 : 1
                     }}
                   >
-                    {cleanupLoading ? '⏳ Cleaning...' : '🗑️ Clean Orphaned Data'}
+                    {orphanedLoading ? '⏳ Cleaning...' : '🗑️ Clean Orphaned Data'}
                   </button>
                 </div>
 
@@ -314,19 +352,19 @@ export default function AdminMaintenancePage() {
                   </p>
                   <button
                     onClick={() => performCleanup('duplicates')}
-                    disabled={cleanupLoading}
+                    disabled={duplicatesLoading}
                     style={{
                       padding: '8px 16px',
                       backgroundColor: '#ffc107',
                       color: 'black',
                       border: 'none',
                       borderRadius: '4px',
-                      cursor: cleanupLoading ? 'not-allowed' : 'pointer',
+                      cursor: duplicatesLoading ? 'not-allowed' : 'pointer',
                       fontSize: '14px',
-                      opacity: cleanupLoading ? 0.6 : 1
+                      opacity: duplicatesLoading ? 0.6 : 1
                     }}
                   >
-                    {cleanupLoading ? '⏳ Scanning...' : '🔍 Remove Duplicates'}
+                    {duplicatesLoading ? '⏳ Scanning...' : '🔍 Remove Duplicates'}
                   </button>
                 </div>
 
@@ -337,19 +375,19 @@ export default function AdminMaintenancePage() {
                   </p>
                   <button
                     onClick={() => performCleanup('inactive')}
-                    disabled={cleanupLoading}
+                    disabled={inactiveLoading}
                     style={{
                       padding: '8px 16px',
                       backgroundColor: '#6c757d',
                       color: 'white',
                       border: 'none',
                       borderRadius: '4px',
-                      cursor: cleanupLoading ? 'not-allowed' : 'pointer',
+                      cursor: inactiveLoading ? 'not-allowed' : 'pointer',
                       fontSize: '14px',
-                      opacity: cleanupLoading ? 0.6 : 1
+                      opacity: inactiveLoading ? 0.6 : 1
                     }}
                   >
-                    {cleanupLoading ? '⏳ Processing...' : '👥 Clean Inactive Users'}
+                    {inactiveLoading ? '⏳ Processing...' : '👥 Clean Inactive Users'}
                   </button>
                 </div>
 
@@ -389,19 +427,19 @@ export default function AdminMaintenancePage() {
                   </p>
                   <button
                     onClick={optimizeDatabase}
-                    disabled={cleanupLoading}
+                    disabled={optimizeLoading}
                     style={{
                       padding: '8px 16px',
                       backgroundColor: '#007bff',
                       color: 'white',
                       border: 'none',
                       borderRadius: '4px',
-                      cursor: cleanupLoading ? 'not-allowed' : 'pointer',
+                      cursor: optimizeLoading ? 'not-allowed' : 'pointer',
                       fontSize: '14px',
-                      opacity: cleanupLoading ? 0.6 : 1
+                      opacity: optimizeLoading ? 0.6 : 1
                     }}
                   >
-                    {cleanupLoading ? '⏳ Optimizing...' : '⚡ Optimize Database'}
+                    {optimizeLoading ? '⏳ Optimizing...' : '⚡ Optimize Database'}
                   </button>
                 </div>
 
@@ -412,19 +450,19 @@ export default function AdminMaintenancePage() {
                   </p>
                   <button
                     onClick={() => performCleanup('cache')}
-                    disabled={cleanupLoading}
+                    disabled={cacheLoading}
                     style={{
                       padding: '8px 16px',
                       backgroundColor: '#28a745',
                       color: 'white',
                       border: 'none',
                       borderRadius: '4px',
-                      cursor: cleanupLoading ? 'not-allowed' : 'pointer',
+                      cursor: cacheLoading ? 'not-allowed' : 'pointer',
                       fontSize: '14px',
-                      opacity: cleanupLoading ? 0.6 : 1
+                      opacity: cacheLoading ? 0.6 : 1
                     }}
                   >
-                    {cleanupLoading ? '⏳ Clearing...' : '🧹 Clear Cache'}
+                    {cacheLoading ? '⏳ Clearing...' : '🧹 Clear Cache'}
                   </button>
                 </div>
               </div>
