@@ -21,11 +21,30 @@ export default function AdminDashboardPage() {
     totalPlans: 0,
     totalRevenue: 0,
   });
+  const [loading, setLoading] = useState(true);
+
+  const fetchStats = async () => {
+    if (!session?.user?.email) return;
+    
+    try {
+      const response = await fetch(`/app/api/admin/stats?userEmail=${encodeURIComponent(session.user.email)}`);
+      if (response.ok) {
+        const data = await response.json();
+        setStats(data);
+      } else {
+        console.error('Failed to fetch admin stats');
+      }
+    } catch (error) {
+      console.error('Error fetching admin stats:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     if (status === 'loading') return;
     if (!session) {
-      router.push('/auth/login');
+      router.push('/app/auth/login');
       return;
     }
 
@@ -35,10 +54,13 @@ export default function AdminDashboardPage() {
       router.push('/dashboard'); // Redirect non-admins to regular dashboard
       return;
     }
+
+    // Fetch stats if user is admin
+    fetchStats();
   }, [session, status, router]);
 
   const handleSignOut = () => {
-    signOut({ callbackUrl: '/auth/login' });
+    signOut({ callbackUrl: '/app/auth/login' });
   };
 
   if (status === 'loading') {
@@ -106,7 +128,9 @@ export default function AdminDashboardPage() {
             <svg className="stat-icon" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd"></path>
             </svg>
-            <div className="stat-number">{stats.totalUsers}</div>
+            <div className="stat-number">
+              {loading ? '...' : stats.totalUsers.toLocaleString()}
+            </div>
             <div className="stat-label">Total Users</div>
           </div>
 
@@ -114,7 +138,9 @@ export default function AdminDashboardPage() {
             <svg className="stat-icon" fill="currentColor" viewBox="0 0 20 20">
               <path d="M4 4a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2H4zm0 2h12v8H4V6z"></path>
             </svg>
-            <div className="stat-number">{stats.totalSubscriptions}</div>
+            <div className="stat-number">
+              {loading ? '...' : stats.totalSubscriptions.toLocaleString()}
+            </div>
             <div className="stat-label">Active Subscriptions</div>
           </div>
 
@@ -122,7 +148,9 @@ export default function AdminDashboardPage() {
             <svg className="stat-icon" fill="currentColor" viewBox="0 0 20 20">
               <path d="M7 3a1 1 0 000 2h6a1 1 0 100-2H7zM4 7a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM2 11a2 2 0 012-2h12a2 2 0 012 2v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4z"></path>
             </svg>
-            <div className="stat-number">{stats.totalPlans}</div>
+            <div className="stat-number">
+              {loading ? '...' : stats.totalPlans.toLocaleString()}
+            </div>
             <div className="stat-label">Subscription Plans</div>
           </div>
 
@@ -131,7 +159,9 @@ export default function AdminDashboardPage() {
               <path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z"></path>
               <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clipRule="evenodd"></path>
             </svg>
-            <div className="stat-number">${(stats.totalRevenue / 100).toFixed(0)}</div>
+            <div className="stat-number">
+              {loading ? '...' : `$${(stats.totalRevenue / 100).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
+            </div>
             <div className="stat-label">Monthly Revenue</div>
           </div>
         </section>

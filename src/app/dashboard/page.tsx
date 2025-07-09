@@ -25,7 +25,7 @@ export default function DashboardPage() {
   useEffect(() => {
     if (status === 'loading') return;
     if (!session) {
-      router.push('/auth/login');
+      router.push('/app/auth/login');
     }
   }, [session, status, router]);
 

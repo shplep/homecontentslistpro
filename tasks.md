@@ -149,6 +149,44 @@
       - **Navigation**: Breadcrumb navigation and easy access from user list
       - **API Integration**: Comprehensive user data endpoint with houses and subscription includes
 
+21.2. [✅] **Admin System Settings**
+    - **Start**: Build comprehensive system settings interface for admin configuration management.
+    - **End**: Admins can configure system-wide settings including email, security, backup, and general settings.
+    - **Status**: ✅ COMPLETED - Full system settings page with:
+      - **Tabbed Interface**: Four organized sections (General, Email, Security, Backup)
+      - **General Settings**: Site name, support email, timezone, maintenance mode, registration controls
+      - **Email Configuration**: SMTP settings, provider selection, test email functionality
+      - **Security Settings**: Password policies, session timeouts, login attempt limits, email verification
+      - **Backup Management**: FULLY FUNCTIONAL - Working backup creation, history viewing, and file management
+        - ✅ **Working Backup API**: Complete backup endpoint with POST/GET/DELETE operations
+        - ✅ **Manual Backup Creation**: Instant database backup with Prisma export fallback
+        - ✅ **Backup History Display**: Table showing all backup files with size and creation dates
+        - ✅ **File Management**: Delete individual backups or cleanup old files (30+ days)
+        - ✅ **Real-time UI Updates**: Loading states, success messages, and error handling
+        - ✅ **Backup Directory**: Automatic creation and management of `/backups` folder
+        - ✅ **Data Export**: Complete database export including users, houses, rooms, items, subscriptions
+        - ✅ **File Download**: Clickable backup filenames with secure download to local computer
+        - ✅ **Download Security**: Path traversal protection and admin authentication validation
+      - **Real-time Form Management**: Live form validation and saving with success/error messages
+      - **Professional UI**: Clean tabbed interface with proper form styling and loading states
+
+21.3. [✅] **Admin Stripe Configuration Management**
+    - **Start**: Add Stripe API key management to admin settings for both sandbox and live environments.
+    - **End**: Admins can configure and switch between Stripe sandbox and live environments with secure key management.
+    - **Status**: ✅ COMPLETED - Full Stripe configuration interface with:
+      - **Environment Selection**: Radio button interface to switch between Sandbox and Live modes
+      - **Sandbox Keys**: Test publishable and secret key configuration with security masking
+      - **Live Keys**: Production publishable and secret key configuration with warning notifications
+      - **Webhook Configuration**: Webhook endpoint secret configuration with auto-generated endpoint URL display
+      - **Visual Feedback**: Mode-specific styling (blue for sandbox, green for live) with appropriate warnings
+      - **Security Features**: Password-masked secret key inputs and partial key display for verification
+      - **✅ DATABASE STORAGE**: SystemSettings table for persistent configuration storage
+      - **✅ CONNECTION TESTING**: Working Stripe API validation with comprehensive account information display
+      - **✅ STRIPE SDK INTEGRATION**: Full Stripe Node.js SDK integration for live API testing
+      - **✅ ERROR HANDLING**: Detailed error messages and validation for invalid keys or account issues
+      - **User Experience**: Clear section organization, helpful descriptions, and functional test interface
+      - **Production Ready**: Environment variable integration with database override for secure key storage
+
 22. [ ] **Integrate Stripe for Payments**
     - **Start**: Set up Stripe integration for payment processing and webhook handling.
     - **End**: Users can subscribe to plans and manage payments.

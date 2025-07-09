@@ -1,6 +1,3 @@
-// HomeContentsListPro Database Schema
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -10,89 +7,78 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// User management
 model User {
-  id                     Int      @id @default(autoincrement())
+  id                     Int             @id @default(autoincrement())
   name                   String?
-  email                  String   @unique
+  email                  String          @unique
   password               String
   phone                  String?
   address                String?
-  role                   Role     @default(USER)
-  passwordResetToken     String?  @map("password_reset_token")
-  passwordResetExpiresAt DateTime? @map("password_reset_expires_at")
-  
-  // Trial and subscription tracking
-  trialStartedAt         DateTime? @map("trial_started_at")
-  trialEndsAt            DateTime? @map("trial_ends_at")
-  hasUsedTrial           Boolean   @default(false) @map("has_used_trial")
-  requiresUpgrade        Boolean   @default(false) @map("requires_upgrade")
-  
-  createdAt              DateTime @default(now()) @map("created_at")
-  updatedAt              DateTime @updatedAt @map("updated_at")
-
-  // Relations
-  houses        House[]
-  collaborations Collaborator[]
-  notifications Notification[]
-  subscriptions Subscription[]
-  adminLogs     AdminLog[]     @relation("AdminActions")
-  userLogs      AdminLog[]     @relation("UserActions")
-  insuranceInfo InsuranceInfo[]
+  role                   Role            @default(USER)
+  passwordResetToken     String?         @map("password_reset_token")
+  passwordResetExpiresAt DateTime?       @map("password_reset_expires_at")
+  createdAt              DateTime        @default(now()) @map("created_at")
+  updatedAt              DateTime        @updatedAt @map("updated_at")
+  hasUsedTrial           Boolean         @default(false) @map("has_used_trial")
+  requiresUpgrade        Boolean         @default(false) @map("requires_upgrade")
+  trialEndsAt            DateTime?       @map("trial_ends_at")
+  trialStartedAt         DateTime?       @map("trial_started_at")
+  adminLogs              AdminLog[]      @relation("AdminActions")
+  userLogs               AdminLog[]      @relation("UserActions")
+  collaborations         Collaborator[]
+  houses                 House[]
+  insuranceInfo          InsuranceInfo[]
+  notifications          Notification[]
+  subscriptions          Subscription[]
 
   @@map("users")
 }
 
-// House management
 model House {
-  id        Int      @id @default(autoincrement())
-  userId    Int      @map("user_id")
-  name      String?  // Optional house name for multiple properties
-  address1  String   @map("address_1")
-  address2  String?  @map("address_2")
-  city      String
-  state     String
-  zipCode   String   @map("zip_code")
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-
-  // Relations
-  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
-  rooms         Room[]
+  id            Int            @id @default(autoincrement())
+  userId        Int            @map("user_id")
+  name          String?
+  address1      String         @map("address_1")
+  address2      String?        @map("address_2")
+  city          String
+  state         String
+  zipCode       String         @map("zip_code")
+  createdAt     DateTime       @default(now()) @map("created_at")
+  updatedAt     DateTime       @updatedAt @map("updated_at")
   collaborators Collaborator[]
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
   insuranceInfo InsuranceInfo?
+  rooms         Room[]
 
+  @@index([userId], map: "houses_user_id_fkey")
   @@map("houses")
 }
 
-// Insurance information for users and houses
 model InsuranceInfo {
-  id             Int     @id @default(autoincrement())
-  userId         Int?    @map("user_id")           // User-level insurance (optional)
-  houseId        Int?    @unique @map("house_id")   // House-level insurance (optional)
-  company        String
-  address1       String  @map("address_1")
-  address2       String? @map("address_2")
-  city           String
-  state          String
-  zipCode        String  @map("zip_code")
-  agentName      String? @map("agent_name")
-  phoneNumber    String? @map("phone_number")
-  policyNumber   String? @map("policy_number")
-  claimNumber    String? @map("claim_number")
-  maxCoverage    Decimal? @map("max_coverage")
-  notes          String?
-  createdAt      DateTime @default(now()) @map("created_at")
-  updatedAt      DateTime @updatedAt @map("updated_at")
+  id           Int      @id @default(autoincrement())
+  houseId      Int?     @unique @map("house_id")
+  company      String
+  address1     String   @map("address_1")
+  address2     String?  @map("address_2")
+  city         String
+  state        String
+  zipCode      String   @map("zip_code")
+  agentName    String?  @map("agent_name")
+  phoneNumber  String?  @map("phone_number")
+  policyNumber String?  @map("policy_number")
+  maxCoverage  Decimal? @map("max_coverage")
+  notes        String?
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+  claimNumber  String?  @map("claim_number")
+  userId       Int?     @map("user_id")
+  house        House?   @relation(fields: [houseId], references: [id], onDelete: Cascade)
+  user         User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  // Relations
-  user  User?  @relation(fields: [userId], references: [id], onDelete: Cascade)
-  house House? @relation(fields: [houseId], references: [id], onDelete: Cascade)
-
+  @@index([userId], map: "insurance_info_user_id_fkey")
   @@map("insurance_info")
 }
 
-// Room management
 model Room {
   id        Int      @id @default(autoincrement())
   houseId   Int      @map("house_id")
@@ -100,40 +86,36 @@ model Room {
   notes     String?
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
+  items     Item[]
+  house     House    @relation(fields: [houseId], references: [id], onDelete: Cascade)
 
-  // Relations
-  house House @relation(fields: [houseId], references: [id], onDelete: Cascade)
-  items Item[]
-
+  @@index([houseId], map: "rooms_house_id_fkey")
   @@map("rooms")
 }
 
-// Item management
 model Item {
-  id            Int           @id @default(autoincrement())
-  roomId        Int           @map("room_id")
-  name          String
-  serialNumber  String?       @map("serial_number")
-  category      String?
-  brand         String?
-  model         String?
-  price         Int?          // Price in cents
-  dateAcquired  DateTime?     @map("date_acquired")
-  status        ItemStatus?
-  condition     ItemCondition?
-  notes         String?
-  isImported    Boolean       @default(false) @map("is_imported")
-  createdAt     DateTime      @default(now()) @map("created_at")
-  updatedAt     DateTime      @updatedAt @map("updated_at")
+  id           Int            @id @default(autoincrement())
+  roomId       Int            @map("room_id")
+  name         String
+  serialNumber String?        @map("serial_number")
+  category     String?
+  brand        String?
+  model        String?
+  price        Int?
+  dateAcquired DateTime?      @map("date_acquired")
+  status       ItemStatus?
+  condition    ItemCondition?
+  notes        String?
+  isImported   Boolean        @default(false) @map("is_imported")
+  createdAt    DateTime       @default(now()) @map("created_at")
+  updatedAt    DateTime       @updatedAt @map("updated_at")
+  images       Image[]
+  room         Room           @relation(fields: [roomId], references: [id], onDelete: Cascade)
 
-  // Relations
-  room   Room    @relation(fields: [roomId], references: [id], onDelete: Cascade)
-  images Image[]
-
+  @@index([roomId], map: "items_room_id_fkey")
   @@map("items")
 }
 
-// Image storage
 model Image {
   id        Int      @id @default(autoincrement())
   itemId    Int      @map("item_id")
@@ -142,14 +124,12 @@ model Image {
   size      Int
   mimeType  String   @map("mime_type")
   createdAt DateTime @default(now()) @map("created_at")
+  item      Item     @relation(fields: [itemId], references: [id], onDelete: Cascade)
 
-  // Relations
-  item Item @relation(fields: [itemId], references: [id], onDelete: Cascade)
-
+  @@index([itemId], map: "images_item_id_fkey")
   @@map("images")
 }
 
-// Collaborator access
 model Collaborator {
   id                Int                    @id @default(autoincrement())
   userId            Int                    @map("user_id")
@@ -158,125 +138,118 @@ model Collaborator {
   permissions       CollaboratorPermission
   invitedAt         DateTime               @default(now()) @map("invited_at")
   acceptedAt        DateTime?              @map("accepted_at")
-
-  // Relations
-  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
-  house House @relation(fields: [houseId], references: [id], onDelete: Cascade)
+  house             House                  @relation(fields: [houseId], references: [id], onDelete: Cascade)
+  user              User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, houseId, collaboratorEmail])
+  @@index([houseId], map: "collaborators_house_id_fkey")
   @@map("collaborators")
 }
 
-// Insurance report formats
 model InsuranceFormat {
-  id             Int    @id @default(autoincrement())
-  insurerName    String @map("insurer_name")
-  columnMappings Json   @map("column_mappings")
+  id             Int      @id @default(autoincrement())
+  insurerName    String   @map("insurer_name")
+  columnMappings Json     @map("column_mappings")
   createdAt      DateTime @default(now()) @map("created_at")
   updatedAt      DateTime @updatedAt @map("updated_at")
 
   @@map("insurance_formats")
 }
 
-// Notifications
 model Notification {
-  id        Int              @id @default(autoincrement())
-  userId    Int              @map("user_id")
-  message   String
-  type      NotificationType
-  sentAt    DateTime         @default(now()) @map("sent_at")
-  readAt    DateTime?        @map("read_at")
+  id      Int              @id @default(autoincrement())
+  userId  Int              @map("user_id")
+  message String
+  type    NotificationType
+  sentAt  DateTime         @default(now()) @map("sent_at")
+  readAt  DateTime?        @map("read_at")
+  user    User             @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  // Relations
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
+  @@index([userId], map: "notifications_user_id_fkey")
   @@map("notifications")
 }
 
-// Admin action logging
 model AdminLog {
   id        Int      @id @default(autoincrement())
   adminId   Int      @map("admin_id")
   userId    Int      @map("user_id")
   action    String
   timestamp DateTime @default(now())
+  admin     User     @relation("AdminActions", fields: [adminId], references: [id])
+  user      User     @relation("UserActions", fields: [userId], references: [id])
 
-  // Relations
-  admin User @relation("AdminActions", fields: [adminId], references: [id])
-  user  User @relation("UserActions", fields: [userId], references: [id])
-
+  @@index([adminId], map: "admin_logs_admin_id_fkey")
+  @@index([userId], map: "admin_logs_user_id_fkey")
   @@map("admin_logs")
 }
 
-// Discount codes for affiliate program
 model DiscountCode {
-  id           Int      @id @default(autoincrement())
-  code         String   @unique
-  promoterName String   @map("promoter_name")
-  promoFee     Int      @map("promo_fee") // Fee in cents
-  isActive     Boolean  @default(true) @map("is_active")
-  createdAt    DateTime @default(now()) @map("created_at")
-
-  // Relations
+  id            Int            @id @default(autoincrement())
+  code          String         @unique
+  promoterName  String         @map("promoter_name")
+  promoFee      Int            @map("promo_fee")
+  isActive      Boolean        @default(true) @map("is_active")
+  createdAt     DateTime       @default(now()) @map("created_at")
   subscriptions Subscription[]
 
   @@map("discount_codes")
 }
 
-// Subscription plans configuration
 model SubscriptionPlan {
-  id                    Int      @id @default(autoincrement())
-  name                  String   @unique
-  displayName           String   @map("display_name")
-  description           String?
-  price                 Int      // Annual price in cents
-  stripeProductId       String?  @unique @map("stripe_product_id")
-  stripePriceId         String?  @unique @map("stripe_price_id")
-  
-  // Usage limits
-  maxHouses             Int      @map("max_houses")
-  maxRoomsPerHouse      Int?     @map("max_rooms_per_house") // null = unlimited
-  maxItemsPerRoom       Int?     @map("max_items_per_room")  // null = unlimited
-  
-  // Plan features and settings
-  isActive              Boolean  @default(true) @map("is_active")
-  allowTrial            Boolean  @default(false) @map("allow_trial")
-  sortOrder             Int      @default(0) @map("sort_order")
-  
-  createdAt             DateTime @default(now()) @map("created_at")
-  updatedAt             DateTime @updatedAt @map("updated_at")
-
-  // Relations
-  subscriptions         Subscription[]
+  id               Int            @id @default(autoincrement())
+  name             String         @unique
+  displayName      String         @map("display_name")
+  description      String?
+  price            Int
+  stripeProductId  String?        @unique @map("stripe_product_id")
+  stripePriceId    String?        @unique @map("stripe_price_id")
+  maxHouses        Int            @map("max_houses")
+  maxRoomsPerHouse Int?           @map("max_rooms_per_house")
+  maxItemsPerRoom  Int?           @map("max_items_per_room")
+  isActive         Boolean        @default(true) @map("is_active")
+  allowTrial       Boolean        @default(false) @map("allow_trial")
+  sortOrder        Int            @default(0) @map("sort_order")
+  createdAt        DateTime       @default(now()) @map("created_at")
+  updatedAt        DateTime       @updatedAt @map("updated_at")
+  subscriptions    Subscription[]
 
   @@map("subscription_plans")
 }
 
-// Subscription management
 model Subscription {
-  id                   Int             @id @default(autoincrement())
-  userId               Int             @map("user_id")
-  stripeSubscriptionId String?         @unique @map("stripe_subscription_id")
-  stripeCustomerId     String?         @map("stripe_customer_id")
-  discountCodeId       Int?            @map("discount_code_id")
-  planId               Int             @map("plan_id")
+  id                   Int                @id @default(autoincrement())
+  userId               Int                @map("user_id")
+  stripeSubscriptionId String?            @unique @map("stripe_subscription_id")
+  discountCodeId       Int?               @map("discount_code_id")
+  planId               Int                @map("plan_id")
   status               SubscriptionStatus
-  trialEndsAt          DateTime?       @map("trial_ends_at")
-  currentPeriodStart   DateTime?       @map("current_period_start")
-  currentPeriodEnd     DateTime?       @map("current_period_end")
-  cancelAtPeriodEnd    Boolean         @default(false) @map("cancel_at_period_end")
-  createdAt            DateTime        @default(now()) @map("created_at")
-  updatedAt            DateTime        @updatedAt @map("updated_at")
+  trialEndsAt          DateTime?          @map("trial_ends_at")
+  currentPeriodStart   DateTime?          @map("current_period_start")
+  currentPeriodEnd     DateTime?          @map("current_period_end")
+  createdAt            DateTime           @default(now()) @map("created_at")
+  updatedAt            DateTime           @updatedAt @map("updated_at")
+  cancelAtPeriodEnd    Boolean            @default(false) @map("cancel_at_period_end")
+  stripeCustomerId     String?            @map("stripe_customer_id")
+  discountCode         DiscountCode?      @relation(fields: [discountCodeId], references: [id])
+  plan                 SubscriptionPlan   @relation(fields: [planId], references: [id])
+  user                 User               @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  // Relations
-  user         User              @relation(fields: [userId], references: [id], onDelete: Cascade)
-  plan         SubscriptionPlan  @relation(fields: [planId], references: [id])
-  discountCode DiscountCode?     @relation(fields: [discountCodeId], references: [id])
-
+  @@index([discountCodeId], map: "subscriptions_discount_code_id_fkey")
+  @@index([planId], map: "subscriptions_plan_id_fkey")
+  @@index([userId], map: "subscriptions_user_id_fkey")
   @@map("subscriptions")
 }
 
-// Enums
+model SystemSettings {
+  id        Int      @id @default(autoincrement())
+  key       String   @unique
+  value     String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("system_settings")
+}
+
 enum Role {
   USER
   ADMIN
