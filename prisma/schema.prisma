@@ -21,6 +21,13 @@ model User {
   role                   Role     @default(USER)
   passwordResetToken     String?  @map("password_reset_token")
   passwordResetExpiresAt DateTime? @map("password_reset_expires_at")
+  
+  // Trial and subscription tracking
+  trialStartedAt         DateTime? @map("trial_started_at")
+  trialEndsAt            DateTime? @map("trial_ends_at")
+  hasUsedTrial           Boolean   @default(false) @map("has_used_trial")
+  requiresUpgrade        Boolean   @default(false) @map("requires_upgrade")
+  
   createdAt              DateTime @default(now()) @map("created_at")
   updatedAt              DateTime @updatedAt @map("updated_at")
 
@@ -110,7 +117,7 @@ model Item {
   category      String?
   brand         String?
   model         String?
-  price         Decimal?
+  price         Int?          // Price in cents
   dateAcquired  DateTime?     @map("date_acquired")
   status        ItemStatus?
   condition     ItemCondition?
@@ -206,7 +213,7 @@ model DiscountCode {
   id           Int      @id @default(autoincrement())
   code         String   @unique
   promoterName String   @map("promoter_name")
-  promoFee     Decimal  @map("promo_fee")
+  promoFee     Int      @map("promo_fee") // Fee in cents
   isActive     Boolean  @default(true) @map("is_active")
   createdAt    DateTime @default(now()) @map("created_at")
 
@@ -216,23 +223,55 @@ model DiscountCode {
   @@map("discount_codes")
 }
 
+// Subscription plans configuration
+model SubscriptionPlan {
+  id                    Int      @id @default(autoincrement())
+  name                  String   @unique
+  displayName           String   @map("display_name")
+  description           String?
+  price                 Int      // Annual price in cents
+  stripeProductId       String?  @unique @map("stripe_product_id")
+  stripePriceId         String?  @unique @map("stripe_price_id")
+  
+  // Usage limits
+  maxHouses             Int      @map("max_houses")
+  maxRoomsPerHouse      Int?     @map("max_rooms_per_house") // null = unlimited
+  maxItemsPerRoom       Int?     @map("max_items_per_room")  // null = unlimited
+  
+  // Plan features and settings
+  isActive              Boolean  @default(true) @map("is_active")
+  allowTrial            Boolean  @default(false) @map("allow_trial")
+  sortOrder             Int      @default(0) @map("sort_order")
+  
+  createdAt             DateTime @default(now()) @map("created_at")
+  updatedAt             DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  subscriptions         Subscription[]
+
+  @@map("subscription_plans")
+}
+
 // Subscription management
 model Subscription {
   id                   Int             @id @default(autoincrement())
   userId               Int             @map("user_id")
   stripeSubscriptionId String?         @unique @map("stripe_subscription_id")
+  stripeCustomerId     String?         @map("stripe_customer_id")
   discountCodeId       Int?            @map("discount_code_id")
   planId               Int             @map("plan_id")
   status               SubscriptionStatus
   trialEndsAt          DateTime?       @map("trial_ends_at")
   currentPeriodStart   DateTime?       @map("current_period_start")
   currentPeriodEnd     DateTime?       @map("current_period_end")
+  cancelAtPeriodEnd    Boolean         @default(false) @map("cancel_at_period_end")
   createdAt            DateTime        @default(now()) @map("created_at")
   updatedAt            DateTime        @updatedAt @map("updated_at")
 
   // Relations
-  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  discountCode DiscountCode? @relation(fields: [discountCodeId], references: [id])
+  user         User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plan         SubscriptionPlan  @relation(fields: [planId], references: [id])
+  discountCode DiscountCode?     @relation(fields: [discountCodeId], references: [id])
 
   @@map("subscriptions")
 }

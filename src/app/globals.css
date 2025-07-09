@@ -346,6 +346,28 @@ body {
   font-weight: 500;
 }
 
+/* Admin-specific styles */
+.admin-card {
+  background: linear-gradient(135deg, #dc3545, #c82333);
+  color: white;
+  border: 2px solid #dc3545;
+}
+
+.admin-card:hover {
+  background: linear-gradient(135deg, #c82333, #a71e2a);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(220, 53, 69, 0.3);
+}
+
+.admin-card .tool-icon {
+  color: white;
+}
+
+.admin-card .tool-title {
+  color: white;
+  font-weight: 600;
+}
+
 /* Profile Page Styles */
 .profile-container {
   max-width: 800px;

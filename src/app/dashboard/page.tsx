@@ -84,13 +84,37 @@ export default function DashboardPage() {
         .toUpperCase()
     : 'U';
 
+  // Check if user is admin
+  const isAdmin = (session.user as any)?.role === 'ADMIN';
+
   return (
     <div className="dashboard-container">
       {/* Header */}
       <header className="dashboard-header">
-        <h1 className="dashboard-title">Home Contents Dashboard</h1>
+        <div>
+          <h1 className="dashboard-title">Home Contents Dashboard</h1>
+          {isAdmin && (
+            <div style={{ 
+              display: 'inline-block', 
+              backgroundColor: '#17a2b8', 
+              color: 'white', 
+              padding: '4px 8px', 
+              borderRadius: '4px', 
+              fontSize: '12px', 
+              fontWeight: 'bold', 
+              marginLeft: '12px' 
+            }}>
+              ADMIN USER
+            </div>
+          )}
+        </div>
         <div className="user-info">
           <span>Welcome, {session.user?.name || 'User'}</span>
+          {isAdmin && (
+            <Link href="/admin/dashboard" className="btn btn-primary" style={{ marginRight: '12px' }}>
+              Admin Panel
+            </Link>
+          )}
           <Link href="/dashboard/profile" className="user-avatar-link">
             <div className="user-avatar">{userInitials}</div>
           </Link>
@@ -191,7 +215,7 @@ export default function DashboardPage() {
           <div className="tools-grid">
             <Link href="/dashboard/import" className="tool-card">
               <svg className="tool-icon" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd"></path>
+                <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 102 0v7.586l1.293-1.293a1 1 0 101.414 1.414l-3 3a1 1 0 00-1.414 0l-3-3a1 1 0 000-1.414z" clipRule="evenodd"></path>
               </svg>
               <div className="tool-title">Import Data</div>
             </Link>
@@ -212,10 +236,19 @@ export default function DashboardPage() {
 
             <Link href="/dashboard/help" className="tool-card">
               <svg className="tool-icon" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd"></path>
+                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 102 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd"></path>
               </svg>
               <div className="tool-title">Help & Support</div>
             </Link>
+
+            {isAdmin && (
+              <Link href="/admin/dashboard" className="tool-card admin-card">
+                <svg className="tool-icon" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"></path>
+                </svg>
+                <div className="tool-title">Admin Panel</div>
+              </Link>
+            )}
           </div>
         </section>
       </main>
