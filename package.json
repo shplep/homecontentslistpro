@@ -13,6 +13,9 @@
     "type-check": "tsc --noEmit",
     "check-all": "npm run type-check && npm run lint && npm run format:check"
   },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
@@ -46,6 +49,7 @@
     "eslint-config-prettier": "^10.1.5",
     "eslint-plugin-prettier": "^5.5.0",
     "prettier": "^3.5.3",
+    "tsx": "^4.19.2",
     "typescript": "^5.5.2"
   }
 }
