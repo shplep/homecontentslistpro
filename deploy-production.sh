@@ -32,9 +32,16 @@ fi
 
 # Step 1: Pull latest changes
 print_status "Pulling latest changes from GitHub..."
-git pull origin main
+# Get current branch name
+CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+print_status "Current branch: $CURRENT_BRANCH"
+
+# Configure git to handle divergent branches
+git config pull.ff only 2>/dev/null || true
+git fetch origin
+git reset --hard origin/$CURRENT_BRANCH
 if [ $? -ne 0 ]; then
-    print_error "Failed to pull latest changes"
+    print_error "Failed to update to latest changes from origin/$CURRENT_BRANCH"
     exit 1
 fi
 
