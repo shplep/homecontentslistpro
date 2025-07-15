@@ -60,6 +60,13 @@ export default function AdminSettingsPage() {
     accountInfo?: any;
   } | null>(null);
 
+  const [emailTestLoading, setEmailTestLoading] = useState(false);
+  const [emailTestResult, setEmailTestResult] = useState<{
+    success: boolean;
+    message: string;
+    details?: any;
+  } | null>(null);
+
   const [settings, setSettings] = useState<SystemSettings>({
     // Email Configuration
     emailProvider: 'smtp',
@@ -210,6 +217,38 @@ export default function AdminSettingsPage() {
       setMessage({ type: 'error', text: 'Failed to test connection. Please try again.' });
     } finally {
       setStripeTestLoading(false);
+    }
+  };
+
+  const testEmailConfiguration = async () => {
+    if (!session?.user?.email) return;
+    
+    setEmailTestLoading(true);
+    setEmailTestResult(null);
+    setMessage(null);
+
+    try {
+      const response = await fetch(`/app/api/admin/email/test?userEmail=${encodeURIComponent(session.user.email)}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      });
+
+      const data = await response.json();
+      setEmailTestResult(data);
+
+      if (data.success) {
+        setMessage({ type: 'success', text: data.message });
+      } else {
+        setMessage({ type: 'error', text: data.error || 'Email test failed' });
+      }
+    } catch (error) {
+      setEmailTestResult({
+        success: false,
+        message: 'Network error during email test'
+      });
+      setMessage({ type: 'error', text: 'Failed to test email. Please try again.' });
+    } finally {
+      setEmailTestLoading(false);
     }
   };
 
@@ -677,21 +716,45 @@ export default function AdminSettingsPage() {
                   border: '1px solid #dee2e6'
                 }}>
                   <button
+                    onClick={testEmailConfiguration}
+                    disabled={emailTestLoading}
                     style={{
                       padding: '8px 16px',
-                      backgroundColor: '#6c757d',
+                      backgroundColor: emailTestLoading ? '#6c757d' : '#28a745',
                       color: 'white',
                       border: 'none',
                       borderRadius: '4px',
-                      cursor: 'pointer',
-                      fontSize: '14px'
+                      cursor: emailTestLoading ? 'not-allowed' : 'pointer',
+                      fontSize: '14px',
+                      opacity: emailTestLoading ? 0.6 : 1
                     }}
                   >
-                    Send Test Email
+                    {emailTestLoading ? '📧 Sending...' : '📧 Send Test Email'}
                   </button>
                   <span style={{ marginLeft: '12px', fontSize: '14px', color: '#666' }}>
                     Send a test email to verify configuration
                   </span>
+                  
+                  {emailTestResult && (
+                    <div style={{
+                      marginTop: '12px',
+                      padding: '12px',
+                      borderRadius: '4px',
+                      backgroundColor: emailTestResult.success ? '#d4edda' : '#f8d7da',
+                      border: `1px solid ${emailTestResult.success ? '#c3e6cb' : '#f5c6cb'}`,
+                      color: emailTestResult.success ? '#155724' : '#721c24'
+                    }}>
+                      <strong>{emailTestResult.success ? '✅ Success!' : '❌ Failed'}</strong>
+                      <p style={{ margin: '4px 0 0 0', fontSize: '14px' }}>
+                        {emailTestResult.message}
+                      </p>
+                      {emailTestResult.details && (
+                        <div style={{ fontSize: '12px', marginTop: '8px', opacity: 0.8 }}>
+                          <strong>Details:</strong> {emailTestResult.details.provider?.toUpperCase()} via {emailTestResult.details.host}:{emailTestResult.details.port}
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
