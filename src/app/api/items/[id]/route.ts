@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { join } from 'path';
+import { deleteFile, generateFilePath, cleanupEmptyDirectories } from '@/lib/file-utils';
 
 // GET /api/items/[id] - Get a specific item
 export async function GET(
@@ -57,11 +59,11 @@ export async function GET(
       roomId: item.roomId,
       name: item.name,
       serialNumber: item.serialNumber,
-      category: item.category,
       brand: item.brand,
       model: item.model,
-      price: item.price ? Number(item.price) : null,
-      dateAcquired: item.dateAcquired?.toISOString().split('T')[0] || null,
+      price: item.price ? parseFloat(item.price.toString()) : null,
+      quantity: item.quantity,
+      purchaseDate: item.purchaseDate?.toISOString().split('T')[0] || null,
       status: item.status,
       condition: item.condition,
       notes: item.notes,
@@ -108,11 +110,11 @@ export async function PUT(
     const { 
       name, 
       serialNumber, 
-      category, 
       brand, 
       model, 
       price, 
-      dateAcquired, 
+      quantity,
+      purchaseDate,
       status, 
       condition, 
       notes 
@@ -143,11 +145,11 @@ export async function PUT(
       data: {
         name,
         serialNumber: serialNumber || null,
-        category: category || null,
         brand: brand || null,
         model: model || null,
         price: price ? Number(price) : null,
-        dateAcquired: dateAcquired ? new Date(dateAcquired) : null,
+        quantity: quantity ? Number(quantity) : 1,
+        purchaseDate: purchaseDate ? new Date(purchaseDate) : null,
         status: status || null,
         condition: condition || null,
         notes: notes || null
@@ -168,11 +170,11 @@ export async function PUT(
       roomId: item.roomId,
       name: item.name,
       serialNumber: item.serialNumber,
-      category: item.category,
       brand: item.brand,
       model: item.model,
-      price: item.price ? Number(item.price) : null,
-      dateAcquired: item.dateAcquired?.toISOString().split('T')[0] || null,
+      price: item.price ? parseFloat(item.price.toString()) : null,
+      quantity: item.quantity,
+      purchaseDate: item.purchaseDate?.toISOString().split('T')[0] || null,
       status: item.status,
       condition: item.condition,
       notes: item.notes,
@@ -215,7 +217,7 @@ export async function DELETE(
       return NextResponse.json({ error: 'Invalid item ID' }, { status: 400 });
     }
 
-    // Verify the item belongs to the user
+    // Verify the item belongs to the user and get associated files
     const item = await prisma.item.findFirst({
       where: {
         id: itemId,
@@ -226,9 +228,7 @@ export async function DELETE(
         }
       },
       include: {
-        images: {
-          select: { id: true }
-        }
+        images: true
       }
     });
 
@@ -236,10 +236,24 @@ export async function DELETE(
       return NextResponse.json({ error: 'Item not found or access denied' }, { status: 404 });
     }
 
-    // Delete the item (this will cascade delete images due to the schema)
+    // Delete associated files from filesystem
+    const { fullPath } = generateFilePath(user.id, itemId, '');
+    for (const image of item.images) {
+      const filename = image.path.split('/').pop();
+      if (filename) {
+        const filePath = join(fullPath, filename);
+        await deleteFile(filePath);
+      }
+    }
+
+    // Delete from database (images will be deleted by cascade)
     await prisma.item.delete({
       where: { id: itemId }
     });
+
+    // Clean up empty directories
+    const userPath = join(process.cwd(), 'public', 'uploads', `user_${user.id}`);
+    await cleanupEmptyDirectories(fullPath, userPath);
 
     return NextResponse.json({ message: 'Item deleted successfully' });
   } catch (error) {

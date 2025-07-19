@@ -160,7 +160,12 @@ export default function AdminDashboardPage() {
               <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clipRule="evenodd"></path>
             </svg>
             <div className="stat-number">
-              {loading ? '...' : `$${(stats.totalRevenue / 100).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
+              {loading ? '...' : (stats.totalRevenue / 100).toLocaleString('en-US', { 
+                style: 'currency', 
+                currency: 'USD',
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+              })}
             </div>
             <div className="stat-label">Monthly Revenue</div>
           </div>
@@ -197,6 +202,17 @@ export default function AdminDashboardPage() {
               <div className="action-title">System Settings</div>
               <div className="action-description">
                 Configure application settings and integrations.
+              </div>
+            </Link>
+
+            {/* FAQ Management Action Card */}
+            <Link href="/admin/faq" className="action-card">
+              <svg className="action-icon" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M18 10c0 3.866-3.582 7-8 7s-8-3.134-8-7 3.582-7 8-7 8 3.134 8 7zm-8 5c3.314 0 6-2.239 6-5s-2.686-5-6-5-6 2.239-6 5 2.686 5 6 5zm-1-4h2v2h-2v-2zm0-6h2v4h-2V5z" />
+              </svg>
+              <div className="action-title">FAQ Management</div>
+              <div className="action-description">
+                Add, edit, and organize Frequently Asked Questions for users.
               </div>
             </Link>
 

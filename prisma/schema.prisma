@@ -98,11 +98,11 @@ model Item {
   roomId       Int            @map("room_id")
   name         String
   serialNumber String?        @map("serial_number")
-  category     String?
   brand        String?
   model        String?
-  price        Int?
-  dateAcquired DateTime?      @map("date_acquired")
+  price        Decimal?       @db.Decimal(10, 2)
+  quantity     Int            @default(1)
+  purchaseDate DateTime?      @map("purchase_date")
   status       ItemStatus?
   condition    ItemCondition?
   notes        String?
@@ -248,6 +248,17 @@ model SystemSettings {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("system_settings")
+}
+
+model FAQ {
+  id        Int      @id @default(autoincrement())
+  question  String
+  answer    String
+  sortOrder Int      @default(0) @map("sort_order")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("faq")
 }
 
 enum Role {

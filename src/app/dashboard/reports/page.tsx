@@ -31,8 +31,8 @@ interface Room {
   };
 }
 
-interface CategoryReport {
-  category: string;
+interface BrandReport {
+  brand: string;
   itemCount: number;
   totalValue: number;
   averageValue: number;
@@ -45,7 +45,7 @@ interface ReportData {
   totalHouses: number;
   houseReports: House[];
   roomReports: Room[];
-  categoryReports: CategoryReport[];
+  brandReports: BrandReport[];
 }
 
 export default function ReportsPage() {
@@ -78,7 +78,7 @@ export default function ReportsPage() {
       let totalValue = 0;
       let totalItems = 0;
       let totalRooms = 0;
-      const categoryMap = new Map<string, { count: number; value: number }>();
+      const brandMap = new Map<string, { count: number; value: number }>();
       const houseReports: House[] = [];
       const roomReports: Room[] = [];
 
@@ -126,17 +126,17 @@ export default function ReportsPage() {
               }
             });
 
-            // Fetch items for category breakdown
+            // Fetch items for brand breakdown
             const itemsResponse = await fetch(`/app/api/items?userEmail=${encodeURIComponent(session?.user?.email || '')}&roomId=${room.id}`);
             if (itemsResponse.ok) {
               const items = await itemsResponse.json();
               
               for (const item of items) {
-                const category = item.category || 'Uncategorized';
+                const brand = item.brand || 'Unbranded';
                 const value = parseFloat(item.price) || 0;
                 
-                const existing = categoryMap.get(category) || { count: 0, value: 0 };
-                categoryMap.set(category, {
+                const existing = brandMap.get(brand) || { count: 0, value: 0 };
+                brandMap.set(brand, {
                   count: existing.count + 1,
                   value: existing.value + value
                 });
@@ -146,10 +146,10 @@ export default function ReportsPage() {
         }
       }
 
-      // Convert category map to sorted array
-      const categoryReports: CategoryReport[] = Array.from(categoryMap.entries())
-        .map(([category, data]) => ({
-          category,
+      // Convert brand map to sorted array
+      const brandReports: BrandReport[] = Array.from(brandMap.entries())
+        .map(([brand, data]) => ({
+          brand,
           itemCount: data.count,
           totalValue: data.value,
           averageValue: data.count > 0 ? data.value / data.count : 0
@@ -163,7 +163,7 @@ export default function ReportsPage() {
         totalHouses: selectedHouse === 'all' ? houses.length : 1,
         houseReports: selectedHouse === 'all' ? houseReports : houseReports.filter(h => h.id.toString() === selectedHouse),
         roomReports: selectedHouse === 'all' ? roomReports : roomReports.filter(r => r.houseId.toString() === selectedHouse),
-        categoryReports
+        brandReports
       });
 
     } catch (error) {

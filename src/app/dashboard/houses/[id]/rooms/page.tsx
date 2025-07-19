@@ -319,7 +319,12 @@ export default function RoomsPage() {
                       <span className="stat-label">Items</span>
                     </div>
                     <div className="stat">
-                      <span className="stat-value">${room.stats.totalValue.toLocaleString()}</span>
+                      <span className="stat-value">{room.stats.totalValue.toLocaleString('en-US', { 
+                      style: 'currency', 
+                      currency: 'USD',
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2
+                    })}</span>
                       <span className="stat-label">Total Value</span>
                     </div>
                   </div>

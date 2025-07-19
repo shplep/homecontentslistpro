@@ -1904,6 +1904,138 @@ body {
   margin-bottom: 1.5rem;
 }
 
+/* File upload styles for item form */
+.form-help-text {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.5rem;
+}
+
+.uploaded-files {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: var(--background-light);
+  border-radius: 8px;
+  border: 1px solid var(--border-light);
+}
+
+.uploaded-files h4 {
+  margin: 0 0 0.75rem 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.file-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem;
+  background: white;
+  border-radius: 6px;
+  margin-bottom: 0.5rem;
+  border: 1px solid var(--border-light);
+}
+
+.file-item:last-child {
+  margin-bottom: 0;
+}
+
+.file-name {
+  flex: 1;
+  font-size: 0.875rem;
+  color: var(--text-primary);
+}
+
+.file-size {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.btn-remove-file {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  color: var(--error-color);
+  font-size: 1.25rem;
+  line-height: 1;
+  transition: background-color 0.2s ease;
+}
+
+.btn-remove-file:hover {
+  background-color: rgba(211, 47, 47, 0.1);
+}
+
+/* Documentation display in item cards */
+.item-documentation {
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background: var(--background-light);
+  border-radius: 6px;
+  border: 1px solid var(--border-light);
+}
+
+.item-documentation p {
+  margin: 0 0 0.5rem 0;
+  font-size: 0.875rem;
+}
+
+.documentation-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.doc-item {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  background: white;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  border: 1px solid var(--border-light);
+}
+
+/* Age input toggle styles */
+.age-input-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.age-input-header label {
+  margin-bottom: 0 !important;
+  flex: 1;
+}
+
+.btn-toggle-age {
+  background: var(--primary-color);
+  border: none;
+  border-radius: 6px;
+  padding: 0.5rem;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+  color: white;
+  min-width: 2.5rem;
+  height: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-toggle-age:hover {
+  background: var(--primary-dark);
+  transform: translateY(-1px);
+}
+
+.btn-toggle-age:active {
+  transform: translateY(0);
+}
+
 /* Ensure item form uses same improved styling as room form */
 .item-form input[type="text"],
 .item-form input[type="number"],
@@ -2652,9 +2784,20 @@ body {
 .faq-item {
   background: #f8f9fa;
   border-radius: 8px;
-  padding: 1.5rem;
+  padding: 1.5rem 2rem;
   margin-bottom: 1.5rem;
   border-left: 4px solid #3b82f6;
+  display: flex;
+  align-items: flex-start;
+  gap: 2rem;
+  justify-content: space-between;
+}
+
+.faq-item > .flex-1 {
+  min-width: 0;
+}
+.faq-item > .flex.flex-col {
+  align-items: flex-end;
 }
 
 .faq-item:last-child {

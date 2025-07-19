@@ -144,8 +144,8 @@ export async function GET(request: NextRequest) {
       const headers = [
         'House Name', 'House Address', 'House City', 'House State',
         'Room Name', 'Room Notes',
-        'Item Name', 'Item Category', 'Item Brand', 'Item Model', 
-        'Item Serial Number', 'Item Price', 'Item Date Acquired', 
+        'Item Name', 'Item Brand', 'Item Model', 
+        'Item Serial Number', 'Item Price', 
         'Item Status', 'Item Condition', 'Item Notes'
       ];
 
@@ -171,12 +171,10 @@ export async function GET(request: NextRequest) {
               `"${room.name || ''}"`,
               `"${room.notes || ''}"`,
               `"${item.name || ''}"`,
-              `"${item.category || ''}"`,
               `"${item.brand || ''}"`,
               `"${item.model || ''}"`,
               `"${item.serialNumber || ''}"`,
               `"${item.price || 0}"`,
-              `"${item.dateAcquired ? new Date(item.dateAcquired).toISOString().split('T')[0] : ''}"`,
               `"${item.status || ''}"`,
               `"${item.condition || ''}"`,
               `"${item.notes || ''}"`
@@ -223,7 +221,7 @@ export async function GET(request: NextRequest) {
       
       const headers = [
         'House Name', 'House Address', 'Room Name', 'Item Name', 
-        'Category', 'Brand', 'Model', 'Price', 'Condition', 'Status'
+        'Brand', 'Model', 'Price', 'Condition', 'Status'
       ];
       csvData.push(headers.join(','));
 
@@ -235,7 +233,6 @@ export async function GET(request: NextRequest) {
               `"${house.address1}, ${house.city}, ${house.state}"`,
               `"${room.name || ''}"`,
               `"${item.name || ''}"`,
-              `"${item.category || ''}"`,
               `"${item.brand || ''}"`,
               `"${item.model || ''}"`,
               `"${item.price || 0}"`,

@@ -11,11 +11,11 @@ interface Item {
   roomId: number;
   name: string;
   serialNumber: string | null;
-  category: string | null;
   brand: string | null;
   model: string | null;
   price: number | null;
-  dateAcquired: string | null;
+  quantity: number;
+  purchaseDate: string | null;
   status: string | null;
   condition: string | null;
   notes: string | null;
@@ -31,11 +31,11 @@ interface Item {
 interface ItemFormData {
   name: string;
   serialNumber: string;
-  category: string;
   brand: string;
   model: string;
   price: string;
-  dateAcquired: string;
+  quantity: string;
+  ageInput: string;
   status: string;
   condition: string;
   notes: string;
@@ -70,17 +70,20 @@ export default function ItemsPage() {
   const [formData, setFormData] = useState<ItemFormData>({
     name: '',
     serialNumber: '',
-    category: '',
     brand: '',
     model: '',
     price: '',
-    dateAcquired: '',
+    quantity: '1',
+    ageInput: '',
     status: '',
     condition: '',
     notes: ''
   });
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [successMessage, setSuccessMessage] = useState('');
+  const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
+  const [uploading, setUploading] = useState(false);
+  const [ageInputMode, setAgeInputMode] = useState<'age' | 'date'>('age');
 
   useEffect(() => {
     if (session?.user?.email && roomId && houseId) {
@@ -134,6 +137,130 @@ export default function ItemsPage() {
     }
   };
 
+  const validateFile = (file: File) => {
+    const validTypes = [
+      'image/jpeg', 'image/jpg', 'image/png', 
+      'application/pdf', 
+      'application/msword', 
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    ];
+    const validExtensions = ['.jpg', '.jpeg', '.png', '.pdf', '.doc', '.docx'];
+    
+    const hasValidType = validTypes.includes(file.type);
+    const hasValidExtension = validExtensions.some(ext => file.name.toLowerCase().endsWith(ext));
+    
+    if (!hasValidType && !hasValidExtension) {
+      return 'Please select JPG, PNG, PDF, DOC, or DOCX files only';
+    }
+    
+    if (file.size > 6 * 1024 * 1024) { // 6MB limit
+      return 'File size must be less than 6MB';
+    }
+    
+    return null;
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    const newErrors: { [key: string]: string } = {};
+    const validFiles: File[] = [];
+
+    files.forEach((file, index) => {
+      const error = validateFile(file);
+      if (error) {
+        newErrors[`file_${index}`] = error;
+      } else {
+        validFiles.push(file);
+      }
+    });
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(prev => ({ ...prev, ...newErrors }));
+    } else {
+      setUploadedFiles(prev => [...prev, ...validFiles]);
+      setErrors(prev => {
+        const filtered = { ...prev };
+        Object.keys(filtered).forEach(key => {
+          if (key.startsWith('file_')) delete filtered[key];
+        });
+        return filtered;
+      });
+    }
+
+    // Reset the input
+    e.target.value = '';
+  };
+
+  const removeFile = (index: number) => {
+    setUploadedFiles(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const parseAgeInput = (input: string): Date | null => {
+    if (!input.trim()) return null;
+
+    if (ageInputMode === 'date') {
+      // Handle date input
+      const date = new Date(input);
+      return isNaN(date.getTime()) ? null : date;
+    } else {
+      // Handle age input (e.g., "2 years 3 months", "5 years", "6 months")
+      // Improved regex to better handle standalone months/years
+      const ageRegex = /(?:(\d+)\s*(?:years?|yrs?|y))?(?:\s*(\d+)\s*(?:months?|mos?|m))?/i;
+      const match = input.trim().match(ageRegex);
+      
+      if (!match) {
+        // Try alternative patterns for just numbers with units
+        const simpleMonthsMatch = input.trim().match(/^(\d+)\s*(?:months?|mos?|m)$/i);
+        const simpleYearsMatch = input.trim().match(/^(\d+)\s*(?:years?|yrs?|y)$/i);
+        
+        if (simpleMonthsMatch) {
+          const months = parseInt(simpleMonthsMatch[1]);
+          const purchaseDate = new Date();
+          purchaseDate.setMonth(purchaseDate.getMonth() - months);
+          return purchaseDate;
+        } else if (simpleYearsMatch) {
+          const years = parseInt(simpleYearsMatch[1]);
+          const purchaseDate = new Date();
+          purchaseDate.setFullYear(purchaseDate.getFullYear() - years);
+          return purchaseDate;
+        }
+        return null;
+      }
+      
+      const years = parseInt(match[1] || '0');
+      const months = parseInt(match[2] || '0');
+      
+      if (years === 0 && months === 0) return null;
+      
+      // Calculate purchase date by subtracting age from current date
+      const purchaseDate = new Date();
+      purchaseDate.setFullYear(purchaseDate.getFullYear() - years);
+      purchaseDate.setMonth(purchaseDate.getMonth() - months);
+      
+      return purchaseDate;
+    }
+  };
+
+  const formatAgeDisplay = (purchaseDate: string | null): string => {
+    if (!purchaseDate) return '';
+    
+    const purchase = new Date(purchaseDate);
+    const now = new Date();
+    const diffTime = Math.abs(now.getTime() - purchase.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    const years = Math.floor(diffDays / 365);
+    const months = Math.floor((diffDays % 365) / 30);
+    
+    if (years === 0) {
+      return months === 1 ? '1 month old' : `${months} months old`;
+    } else if (months === 0) {
+      return years === 1 ? '1 year old' : `${years} years old`;
+    } else {
+      return `${years} year${years !== 1 ? 's' : ''} ${months} month${months !== 1 ? 's' : ''} old`;
+    }
+  };
+
   const validateForm = () => {
     const newErrors: { [key: string]: string } = {};
     
@@ -153,11 +280,14 @@ export default function ItemsPage() {
     try {
       let response;
       
+      const parsedPurchaseDate = parseAgeInput(formData.ageInput);
+      
       const submitData = {
         ...formData,
         roomId: parseInt(roomId),
         price: formData.price ? parseFloat(formData.price) : null,
-        dateAcquired: formData.dateAcquired || null,
+        quantity: parseInt(formData.quantity) || 1,
+        purchaseDate: parsedPurchaseDate ? parsedPurchaseDate.toISOString() : null,
         status: formData.status || null,
         condition: formData.condition || null
       };
@@ -177,6 +307,37 @@ export default function ItemsPage() {
       }
 
       if (response.ok) {
+        const newItem = await response.json();
+        
+        // Upload files if any
+        if (uploadedFiles.length > 0 && newItem.id) {
+          setUploading(true);
+          try {
+            const uploadFormData = new FormData();
+            uploadedFiles.forEach(file => {
+              uploadFormData.append('files', file);
+            });
+
+            const uploadResponse = await fetch(
+              `/app/api/items/${newItem.id}/upload?userEmail=${encodeURIComponent(session?.user?.email || '')}`,
+              {
+                method: 'POST',
+                body: uploadFormData
+              }
+            );
+
+            if (!uploadResponse.ok) {
+              console.error('File upload failed');
+              setErrors({ submit: 'Item created but file upload failed. You can add files later by editing the item.' });
+            }
+          } catch (uploadError) {
+            console.error('File upload error:', uploadError);
+            setErrors({ submit: 'Item created but file upload failed. You can add files later by editing the item.' });
+          } finally {
+            setUploading(false);
+          }
+        }
+
         setSuccessMessage(editingItem ? 'Item updated successfully!' : 'Item created successfully!');
         setShowForm(false);
         setEditingItem(null);
@@ -199,11 +360,11 @@ export default function ItemsPage() {
     setFormData({
       name: item.name,
       serialNumber: item.serialNumber || '',
-      category: item.category || '',
       brand: item.brand || '',
       model: item.model || '',
-      price: item.price?.toString() || '',
-      dateAcquired: item.dateAcquired || '',
+      price: item.price ? item.price.toFixed(2) : '',
+      quantity: item.quantity?.toString() || '1',
+      ageInput: item.purchaseDate || '',
       status: item.status || '',
       condition: item.condition || '',
       notes: item.notes || ''
@@ -238,15 +399,16 @@ export default function ItemsPage() {
     setFormData({
       name: '',
       serialNumber: '',
-      category: '',
       brand: '',
       model: '',
       price: '',
-      dateAcquired: '',
+      quantity: '1',
+      ageInput: '',
       status: '',
       condition: '',
       notes: ''
     });
+    setUploadedFiles([]);
   };
 
   const handleCancel = () => {
@@ -254,6 +416,7 @@ export default function ItemsPage() {
     setEditingItem(null);
     resetForm();
     setErrors({});
+    setUploadedFiles([]);
   };
 
   if (loading) {
@@ -313,52 +476,38 @@ export default function ItemsPage() {
               </div>
               
               <form onSubmit={handleSubmit} className="item-form">
-                <div className="form-group">
-                  <label htmlFor="name">Item Name *</label>
-                  <input
-                    type="text"
-                    id="name"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleInputChange}
-                    className={errors.name ? 'error' : ''}
-                    placeholder="e.g., Samsung 65-inch TV"
-                  />
-                  {errors.name && <div className="error-message">{errors.name}</div>}
+                <div className="form-row">
+                  <div className="form-group">
+                    <label htmlFor="name">Item Name *</label>
+                    <input
+                      type="text"
+                      id="name"
+                      name="name"
+                      value={formData.name}
+                      onChange={handleInputChange}
+                      className={errors.name ? 'error' : ''}
+                      placeholder="e.g., Samsung 65-inch TV"
+                    />
+                    {errors.name && <div className="error-message">{errors.name}</div>}
+                  </div>
+                  
+                  <div className="form-group">
+                    <label htmlFor="quantity">Quantity *</label>
+                    <input
+                      type="number"
+                      id="quantity"
+                      name="quantity"
+                      value={formData.quantity}
+                      onChange={handleInputChange}
+                      min="1"
+                      max="9999"
+                      step="1"
+                      placeholder="1"
+                    />
+                  </div>
                 </div>
 
                 <div className="form-row">
-                  <div className="form-group">
-                    <label htmlFor="category">Category</label>
-                    <select
-                      id="category"
-                      name="category"
-                      value={formData.category}
-                      onChange={handleInputChange}
-                    >
-                      <option value="">Select a category</option>
-                      <option value="Appliances">Appliances</option>
-                      <option value="Art & Decor">Art & Decor</option>
-                      <option value="Automotive">Automotive</option>
-                      <option value="Books">Books</option>
-                      <option value="Clothing">Clothing</option>
-                      <option value="Collectibles">Collectibles</option>
-                      <option value="Documents">Documents</option>
-                      <option value="Electronics">Electronics</option>
-                      <option value="Furniture">Furniture</option>
-                      <option value="Health & Beauty">Health & Beauty</option>
-                      <option value="Jewelry">Jewelry</option>
-                      <option value="Kitchenware">Kitchenware</option>
-                      <option value="Musical Instruments">Musical Instruments</option>
-                      <option value="Office Supplies">Office Supplies</option>
-                      <option value="Other">Other</option>
-                      <option value="Outdoor & Garden">Outdoor & Garden</option>
-                      <option value="Sports & Recreation">Sports & Recreation</option>
-                      <option value="Tools">Tools</option>
-                      <option value="Toys & Games">Toys & Games</option>
-                    </select>
-                  </div>
-
                   <div className="form-group">
                     <label htmlFor="brand">Brand</label>
                     <input
@@ -368,6 +517,18 @@ export default function ItemsPage() {
                       value={formData.brand}
                       onChange={handleInputChange}
                       placeholder="Samsung, Apple, etc."
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor="model">Model</label>
+                    <input
+                      type="text"
+                      id="model"
+                      name="model"
+                      value={formData.model}
+                      onChange={handleInputChange}
+                      placeholder="Model number or name"
                     />
                   </div>
                 </div>
@@ -404,6 +565,71 @@ export default function ItemsPage() {
                   </div>
                 </div>
 
+                <div className="form-row">
+                  <div className="form-group">
+                    <div className="age-input-header">
+                      <label htmlFor="ageInput">
+                        {ageInputMode === 'age' ? 'Item Age' : 'Purchase Date'}
+                      </label>
+                      <button
+                        type="button"
+                        className="btn-toggle-age"
+                        onClick={() => {
+                          setAgeInputMode(prev => prev === 'age' ? 'date' : 'age');
+                          setFormData(prev => ({ ...prev, ageInput: '' }));
+                        }}
+                        title={`Switch to ${ageInputMode === 'age' ? 'Purchase Date' : 'Item Age'} input`}
+                      >
+                        📅
+                      </button>
+                    </div>
+                    
+                    {ageInputMode === 'age' ? (
+                      <input
+                        type="text"
+                        id="ageInput"
+                        name="ageInput"
+                        value={formData.ageInput}
+                        onChange={handleInputChange}
+                        placeholder="e.g., 2 years 3 months, 5 years, 6 months"
+                        className="form-input"
+                      />
+                    ) : (
+                      <input
+                        type="date"
+                        id="ageInput"
+                        name="ageInput"
+                        value={formData.ageInput}
+                        onChange={handleInputChange}
+                        className="form-input"
+                      />
+                    )}
+                    
+                    <p className="form-help-text">
+                      {ageInputMode === 'age' 
+                        ? 'Enter how old the item is (e.g., "2 years", "6 months", "1 year 3 months")'
+                        : 'Select when you purchased this item'
+                      }
+                    </p>
+                  </div>
+                  
+                  <div className="form-group">
+                    <label htmlFor="serialNumber">Serial Number (Optional)</label>
+                    <input
+                      type="text"
+                      id="serialNumber"
+                      name="serialNumber"
+                      value={formData.serialNumber}
+                      onChange={handleInputChange}
+                      placeholder="e.g., ABC123456789"
+                      className="form-input"
+                    />
+                    <p className="form-help-text">
+                      Enter the serial number if available for warranty/insurance purposes
+                    </p>
+                  </div>
+                </div>
+
                 <div className="form-group">
                   <label htmlFor="notes">Notes (Optional)</label>
                   <textarea
@@ -416,12 +642,67 @@ export default function ItemsPage() {
                   />
                 </div>
 
+                <div className="form-group">
+                  <label htmlFor="documentation">Documentation (Optional)</label>
+                  <p className="form-help-text">Upload receipts, photos, or documents (JPG, PNG, PDF, DOC - max 6MB each)</p>
+                  
+                  <div className="file-upload-area">
+                    <input
+                      type="file"
+                      id="documentation"
+                      multiple
+                      accept=".jpg,.jpeg,.png,.pdf,.doc,.docx"
+                      onChange={handleFileChange}
+                      className="file-input"
+                    />
+                    <label htmlFor="documentation" className="file-upload-label">
+                      <div className="upload-icon">📎</div>
+                      <div className="upload-text">
+                        <strong>Choose files</strong> or drag and drop
+                        <p>JPG, PNG, PDF, DOC files up to 6MB each</p>
+                      </div>
+                    </label>
+                  </div>
+
+                  {uploadedFiles.length > 0 && (
+                    <div className="uploaded-files">
+                      <h4>Selected Files:</h4>
+                      {uploadedFiles.map((file, index) => (
+                        <div key={index} className="file-item">
+                          <span className="file-name">
+                            {file.type.startsWith('image/') ? '📷' : file.name.endsWith('.pdf') ? '📄' : '📝'} 
+                            {file.name}
+                          </span>
+                          <span className="file-size">({(file.size / 1024).toFixed(1)} KB)</span>
+                          <button
+                            type="button"
+                            onClick={() => removeFile(index)}
+                            className="btn-remove-file"
+                          >
+                            ×
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {Object.keys(errors).some(key => key.startsWith('file_')) && (
+                    <div className="error-message">
+                      {Object.entries(errors)
+                        .filter(([key]) => key.startsWith('file_'))
+                        .map(([key, error]) => (
+                          <div key={key}>{error}</div>
+                        ))}
+                    </div>
+                  )}
+                </div>
+
                 <div className="form-actions">
                   <button type="button" className="btn btn-outlined" onClick={handleCancel}>
                     Cancel
                   </button>
-                  <button type="submit" className="btn btn-primary">
-                    {editingItem ? 'Update Item' : 'Create Item'}
+                  <button type="submit" className="btn btn-primary" disabled={uploading}>
+                    {uploading ? 'Uploading...' : editingItem ? 'Update Item' : 'Create Item'}
                   </button>
                 </div>
               </form>
@@ -463,13 +744,33 @@ export default function ItemsPage() {
                 <div className="item-content">
                   <div className="item-details">
                     {item.brand && <p><strong>Brand:</strong> {item.brand}</p>}
-                    {item.category && <p><strong>Category:</strong> {item.category}</p>}
-                    {item.price && <p><strong>Value:</strong> ${item.price.toLocaleString()}</p>}
+                    {item.model && <p><strong>Model:</strong> {item.model}</p>}
+                    <p><strong>Quantity:</strong> {item.quantity}</p>
+                    {item.price && <p><strong>Value:</strong> {item.price.toLocaleString('en-US', { 
+                      style: 'currency', 
+                      currency: 'USD'
+                    })}</p>}
+                    {item.purchaseDate && <p><strong>Age:</strong> {formatAgeDisplay(item.purchaseDate)}</p>}
                     {item.condition && <p><strong>Condition:</strong> {item.condition.replace('_', ' ').toLowerCase().replace(/\b\w/g, l => l.toUpperCase())}</p>}
                   </div>
 
                   {item.notes && (
                     <p className="item-notes">{item.notes}</p>
+                  )}
+                  
+                  {item.images && item.images.length > 0 && (
+                    <div className="item-documentation">
+                      <p><strong>Documentation:</strong> {item.images.length} file{item.images.length !== 1 ? 's' : ''}</p>
+                      <div className="documentation-list">
+                        {item.images.map((image) => (
+                          <span key={image.id} className="doc-item">
+                            {image.filename.endsWith('.pdf') ? '📄' : 
+                             image.filename.endsWith('.doc') || image.filename.endsWith('.docx') ? '📝' : '📷'} 
+                            {image.filename}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
                   )}
                 </div>
                 

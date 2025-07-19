@@ -11,7 +11,7 @@ interface Item {
   roomId: number;
   name: string;
   brand: string | null;
-  category: string | null;
+  model: string | null;
   price: number | null;
   condition: string | null;
   createdAt: string;
@@ -122,7 +122,7 @@ export default function AllItemsPage() {
     return (
       item.name.toLowerCase().includes(term) ||
       item.brand?.toLowerCase().includes(term) ||
-      item.category?.toLowerCase().includes(term)
+      item.model?.toLowerCase().includes(term)
     );
   });
 
@@ -157,7 +157,12 @@ export default function AllItemsPage() {
           <div>
             <h1 className="page-title">All Items</h1>
             <p className="page-subtitle">
-              {filteredItems.length} items • ${totalValue.toLocaleString()} total value
+                            {filteredItems.length} items • {totalValue.toLocaleString('en-US', { 
+                style: 'currency', 
+                currency: 'USD',
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+              })} total value
             </p>
           </div>
           <div className="search-box">
@@ -209,8 +214,11 @@ export default function AllItemsPage() {
 
                   <div className="item-details">
                     {item.brand && <p><strong>Brand:</strong> {item.brand}</p>}
-                    {item.category && <p><strong>Category:</strong> {item.category}</p>}
-                    {item.price && <p><strong>Value:</strong> ${item.price.toLocaleString()}</p>}
+                    {item.model && <p><strong>Model:</strong> {item.model}</p>}
+                    {item.price && <p><strong>Value:</strong> {item.price.toLocaleString('en-US', { 
+                      style: 'currency', 
+                      currency: 'USD'
+                    })}</p>}
                     {item.condition && <p><strong>Condition:</strong> {item.condition.replace('_', ' ')}</p>}
                   </div>
                 </div>
